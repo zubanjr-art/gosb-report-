@@ -2,256 +2,219 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Система отчетности ГОСБ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; bg-color: #f4f6f9; color: #333; background: #f4f6f9; min-height: 100vh; display: flex; flex-direction: column; }
+        .screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: white; padding: 30px 20px; rounded-radius: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 340px; text-align: center; border: 1px solid #eaeaea; }
+        h1 { font-size: 20px; margin-bottom: 5px; color: #111; }
+        p { font-size: 13px; color: #888; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 14px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; transition: border 0.2s; }
+        input:focus { border-color: #107c41; }
+        button { width: 100%; padding: 14px; background: #107c41; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:active { background: #0b592e; }
+        .error { color: #e03e3e; font-size: 13px; margin-top: 10px; display: none; }
+        
+        #main-screen { display: none; background: white; max-width: 414px; margin: 0 auto; width: 100%; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .header { background: #107c41; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 16px; font-weight: 600; }
+        .header p { color: rgba(255,255,255,0.8); margin: 0; font-size: 11px; }
+        .logout-btn { background: none; box-shadow: none; padding: 5px 10px; width: auto; font-size: 13px; }
+        .content { flex: 1; padding: 20px; overflow-y: auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-title { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 15px; border-left: 4px solid #107c41; padding-left: 8px; text-align: left; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 5px; text-align: left; }
+        
+        .nav-bar { border-t: 1px solid #eee; background: #f9f9f9; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; }
+        .nav-item { background: none; border: none; box-shadow: none; color: #888; width: 33%; padding: 5px; font-size: 12px; display: flex; flex-direction: column; align-items: center; font-weight: 500; }
+        .nav-item.active { color: #107c41; font-weight: 700; }
+        
+        .report-card { background: #f8f9fa; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #edf0f2; text-align: left; }
+        .report-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+        .progress-bar { width: 100%; background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { background: #f1a80a; height: 100%; width: 0%; }
+        .pct-label { text-align: right; font-size: 10px; color: #999; margin-top: 3px; }
     </style>
 </head>
-<body class="bg-[#faf8f5] min-h-screen flex flex-col justify-between">
+<body>
 
-    <div id="auth-screen" class="flex-1 flex flex-col items-center justify-center px-6">
-        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm border border-gray-100 text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold text-gray-800 mb-1">Система отчетности ГОСБ</h1>
-            <p class="text-sm text-gray-400 mb-6">Введите ваш персональный код доступа</p>
-            
-            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" placeholder="Код доступа" 
-                   class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-center text-lg tracking-widest focus:outline-none focus:border-blue-500 mb-4">
-            
-            <button onclick="handleLogin()" class="w-full bg-[#107c41] text-white py-3 rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition duration-200">
-                Войти
-            </button>
-            <p id="auth-error" class="text-red-500 text-sm mt-3 hidden">Неверный код доступа</p>
+    <div id="auth-screen" class="screen">
+        <div class="card">
+            <h1 style="margin-bottom: 8px;">Система отчетности ГОСБ</h1>
+            <p>Введите ваш код доступа</p>
+            <input type="password" id="pin-input" inputmode="numeric" placeholder="••••">
+            <button id="login-trigger">Войти</button>
+            <div id="auth-error" class="error">Неверный код доступа</div>
         </div>
     </div>
 
-    <div id="main-screen" class="hidden flex-grow flex flex-col max-w-md mx-auto w-full bg-white min-h-screen shadow-lg">
-        <div class="bg-[#107c41] p-4 text-white flex justify-between items-center shadow-md">
+    <div id="main-screen">
+        <div class="header">
             <div>
-                <h2 id="user-role-title" class="font-bold text-lg">Панель управления</h2>
-                <p id="user-sub-title" class="text-xs opacity-80">Загрузка данных...</p>
+                <h2 id="user-role-title">Панель управления</h2>
+                <p id="user-sub-title">Загрузка...</p>
             </div>
-            <button onclick="handleLogout()" class="p-2 hover:bg-emerald-700 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-            </button>
+            <button id="logout-trigger" class="logout-btn">Выйти</button>
         </div>
 
-        <div class="flex-grow p-4 overflow-y-auto">
-            <div id="tab-content-morning" class="tab-content hidden space-y-4">
-                <h3 class="font-bold text-gray-700 text-base border-l-4 border-emerald-600 pl-2">Установить утренний план</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Выберите ВСП:</label>
-                    <select id="plan-vsp-select" class="w-full p-2 bg-gray-50 border rounded-lg"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">План по Кредитам (млн руб):</label>
-                    <input type="number" id="plan-credits" class="w-full p-2 bg-gray-50 border rounded-lg" value="0">
-                </div>
-                <button onclick="saveMorningPlan()" class="w-full bg-[#107c41] text-white py-2.5 rounded-lg font-medium shadow">
-                    Зафиксировать план
-                </button>
+        <div class="content">
+            <div id="tab-morning" class="tab-content">
+                <div class="tab-title">Установить утренний план</div>
+                <label>Выберите ВСП:</label>
+                <select id="plan-vsp-select"></select>
+                <label>План по Кредитам (млн руб):</label>
+                <input type="number" id="plan-credits" value="0">
+                <button id="save-plan-trigger">Зафиксировать план</button>
             </div>
 
-            <div id="tab-content-evening" class="tab-content hidden space-y-4">
-                <h3 class="font-bold text-gray-700 text-base border-l-4 border-blue-600 pl-2">Отправить вечерний итог</h3>
-                <p id="vsp-fixed-label" class="text-sm font-medium text-gray-600"></p>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Выдано Кредитов за день (млн руб):</label>
-                    <input type="number" id="fact-credits" class="w-full p-2 bg-gray-50 border rounded-lg" value="0">
-                </div>
-                <button onclick="saveEveningFact()" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium shadow hover:bg-blue-700">
-                    Отправить факт в базу
-                </button>
+            <div id="tab-evening" class="tab-content">
+                <div class="tab-title">Отправить вечерний итог</div>
+                <p id="vsp-fixed-label" style="text-align: left; color: #444; font-weight: 600;"></p>
+                <label>Выдано Кредитов за день (млн руб):</label>
+                <input type="number" id="fact-credits" value="0">
+                <button id="save-fact-trigger" style="background: #2b6cb0;">Отправить факт в базу</button>
             </div>
 
-            <div id="tab-content-analytics" class="tab-content hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700 text-base border-l-4 border-amber-500 pl-2">Сводная аналитика ГОСБ</h3>
-                    <button onclick="loadAnalytics()" class="text-gray-400 hover:text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18" /></svg>
-                    </button>
+            <div id="tab-analytics" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div class="tab-title" style="margin-bottom: 0;">Сводная аналитика ГОСБ</div>
+                    <span id="refresh-analytics" style="cursor:pointer; font-size: 18px;">🔄</span>
                 </div>
-                <div id="leaderboard-container" class="space-y-2">
-                    <p class="text-xs text-gray-400">Загрузка лидерборда...</p>
-                </div>
+                <div id="leaderboard-container"></div>
             </div>
         </div>
 
-        <div id="bottom-nav" class="border-t bg-gray-50 flex justify-around py-2 text-xs font-medium text-gray-500">
-            <button id="nav-btn-morning" onclick="switchTab('morning')" class="flex flex-col items-center space-y-1 text-emerald-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                <span>Утро</span>
-            </button>
-            <button id="nav-btn-evening" onclick="switchTab('evening')" class="flex flex-col items-center space-y-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-                <span>Вечер</span>
-            </button>
-            <button id="nav-btn-analytics" onclick="switchTab('analytics')" class="flex flex-col items-center space-y-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                <span>Аналитика</span>
-            </button>
+        <div id="bottom-nav" class="nav-bar">
+            <button id="nav-btn-morning" class="nav-item">☀️<span>Утро</span></button>
+            <button id="nav-btn-evening" class="nav-item">🌙<span>Вечер</span></button>
+            <button id="nav-btn-analytics" class="nav-item">📊<span>Аналитика</span></button>
         </div>
     </div>
 
     <script>
-        // Настройки прямого подключения к Supabase REST API
-        const SUPABASE_REST_URL = "https://clgcmdwzofskgcorptes.supabase.co/rest/v1/gosb_reports";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ2NtZHd6b2Zza2djb3JwdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODQwOTAsImV4cCI6MjAzMjQ1OTY5MH0.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
+        // Чистый нативный JavaScript без внешних библиотек
+        const URL_API = "https://clgcmdwzofskgcorptes.supabase.co/rest/v1/gosb_reports";
+        const KEY_API = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ2NtZHd6b2Zza2djb3JwdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODQwOTAsImV4cCI6MjAzMjQ1OTY5MH0.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
-        const usersDB = {
+        const users = {
             "7777": { role: "admin", name: "Администратор ГОСБ", vsp: "ГОСБ 8586" },
             "0303": { role: "vsp", name: "Офис 8586/03", vsp: "8586/03" },
             "1212": { role: "vsp", name: "Офис 8586/12", vsp: "8586/12" },
             "5555": { role: "vsp", name: "Офис 8586/55", vsp: "8586/55" }
         };
+        const listVSP = ["8586/03", "8586/12", "8586/55"];
+        let userActive = null;
 
-        const vspList = ["8586/03", "8586/12", "8586/55"];
-        let currentUser = null;
-
-        const select = document.getElementById("plan-vsp-select");
-        vspList.forEach(vsp => {
-            let opt = document.createElement("option");
-            opt.value = vsp; opt.textContent = vsp; select.appendChild(opt);
+        // Заполнение выпадающего списка ВСП
+        const selectVSP = document.getElementById("plan-vsp-select");
+        listVSP.forEach(v => {
+            let o = document.createElement("option"); o.value = v; o.textContent = v; selectVSP.appendChild(o);
         });
 
-        function handleLogin() {
+        // Назначение кликов
+        document.getElementById("login-trigger").addEventListener("click", login);
+        document.getElementById("logout-trigger").addEventListener("click", logout);
+        document.getElementById("save-plan-trigger").addEventListener("click", savePlan);
+        document.getElementById("save-fact-trigger").addEventListener("click", saveFact);
+        document.getElementById("refresh-analytics").addEventListener("click", loadData);
+        
+        document.getElementById("nav-btn-morning").addEventListener("click", () => changeTab('morning'));
+        document.getElementById("nav-btn-evening").addEventListener("click", () => changeTab('evening'));
+        document.getElementById("nav-btn-analytics").addEventListener("click", () => changeTab('analytics'));
+
+        function login() {
             const pin = document.getElementById("pin-input").value;
-            if (usersDB[pin]) {
-                currentUser = usersDB[pin];
-                document.getElementById("auth-screen").classList.add("hidden");
-                document.getElementById("main-screen").classList.remove("hidden");
+            if (users[pin]) {
+                userActive = users[pin];
+                document.getElementById("auth-screen").style.display = "none";
+                document.getElementById("main-screen").style.display = "flex";
                 
-                document.getElementById("user-role-title").textContent = currentUser.name;
-                document.getElementById("user-sub-title").textContent = currentUser.vsp;
+                document.getElementById("user-role-title").textContent = userActive.name;
+                document.getElementById("user-sub-title").textContent = userActive.vsp;
 
-                if (currentUser.role !== "admin") {
-                    document.getElementById("nav-btn-morning").classList.add("hidden");
-                    document.getElementById("vsp-fixed-label").textContent = `Ваше подразделение: ${currentUser.vsp}`;
-                    switchTab("evening");
+                if (userActive.role !== "admin") {
+                    document.getElementById("nav-btn-morning").style.display = "none";
+                    document.getElementById("vsp-fixed-label").textContent = `Ваше подразделение: ${userActive.vsp}`;
+                    changeTab("evening");
                 } else {
-                    document.getElementById("nav-btn-morning").classList.remove("hidden");
-                    switchTab("morning");
+                    document.getElementById("nav-btn-morning").style.display = "flex";
+                    changeTab("morning");
                 }
-                loadAnalytics();
+                loadData();
             } else {
-                const err = document.getElementById("auth-error");
-                err.classList.remove("hidden");
-                setTimeout(() => err.classList.add("hidden"), 3000);
+                const el = document.getElementById("auth-error");
+                el.style.display = "block";
+                setTimeout(() => el.style.display = "none", 3000);
             }
         }
 
-        function handleLogout() {
-            currentUser = null;
+        function logout() {
+            userActive = null;
             document.getElementById("pin-input").value = "";
-            document.getElementById("main-screen").classList.add("hidden");
-            document.getElementById("auth-screen").classList.remove("hidden");
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("auth-screen").style.display = "flex";
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
-            document.getElementById(`tab-content-${tabName}`).classList.remove("hidden");
+        function changeTab(t) {
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+            document.getElementById(`tab-${t}`).classList.add("active");
             
-            document.querySelectorAll("#bottom-nav button").forEach(btn => btn.classList.remove("text-emerald-600", "text-blue-600", "text-amber-500"));
-            const activeColor = tabName === 'morning' ? 'text-emerald-600' : (tabName === 'evening' ? 'text-blue-600' : 'text-amber-500');
-            document.getElementById(`nav-btn-${tabName}`).classList.add(activeColor);
+            document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+            document.getElementById(`nav-btn-${t}`).classList.add("active");
         }
 
-        async function saveMorningPlan() {
+        function getToday() { return new Date().toISOString().split('T')[0]; }
+
+        function sendRequest(data) {
+            return fetch(URL_API, {
+                method: 'POST',
+                headers: { 'apikey': KEY_API, 'Authorization': `Bearer ${KEY_API}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+                body: JSON.stringify(data)
+            });
+        }
+
+        function savePlan() {
             const vsp = document.getElementById("plan-vsp-select").value;
-            const credits = parseFloat(document.getElementById("plan-credits").value) || 0;
-            const today = new Date().toISOString().split('T')[0];
-
-            try {
-                const response = await fetch(SUPABASE_REST_URL, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
-                    },
-                    body: JSON.stringify({ vsp_number: vsp, report_date: today, plan_credits: credits })
-                });
-
-                if (!response.ok) throw new Error(response.statusText);
-                alert(`План для ВСП ${vsp} успешно зафиксирован!`); 
-                loadAnalytics();
-            } catch (err) {
-                alert("Ошибка сохранения: " + err.message);
-            }
+            const val = parseFloat(document.getElementById("plan-credits").value) || 0;
+            sendRequest({ vsp_number: vsp, report_date: getToday(), plan_credits: val })
+                .then(res => { if(res.ok) { alert("План зафиксирован!"); loadData(); } else alert("Ошибка"); });
         }
 
-        async function saveEveningFact() {
-            const vsp = currentUser.vsp;
-            const credits = parseFloat(document.getElementById("fact-credits").value) || 0;
-            const today = new Date().toISOString().split('T')[0];
-
-            try {
-                const response = await fetch(SUPABASE_REST_URL, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
-                    },
-                    body: JSON.stringify({ vsp_number: vsp, report_date: today, fact_credits: credits })
-                });
-
-                if (!response.ok) throw new Error(response.statusText);
-                alert(`Данные по ВСП ${vsp} успешно отправлены!`); 
-                loadAnalytics();
-            } catch (err) {
-                alert("Ошибка отправки: " + err.message);
-            }
+        function saveFact() {
+            const val = parseFloat(document.getElementById("fact-credits").value) || 0;
+            sendRequest({ vsp_number: userActive.vsp, report_date: getToday(), fact_credits: val })
+                .then(res => { if(res.ok) { alert("Данные отправлены!"); loadData(); } else alert("Ошибка"); });
         }
 
-        async function loadAnalytics() {
-            const today = new Date().toISOString().split('T')[0];
-            const container = document.getElementById("leaderboard-container");
-            container.innerHTML = '<p class="text-xs text-gray-400">Обновление данных...</p>';
-
-            try {
-                const response = await fetch(`${SUPABASE_REST_URL}?report_date=eq.${today}`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
-                });
-
-                if (!response.ok) throw new Error(response.statusText);
-                const data = await response.json();
-
-                container.innerHTML = "";
-                vspList.forEach(vsp => {
-                    const row = data.find(r => r.vsp_number === vsp) || { plan_credits: 0, fact_credits: 0 };
-                    const pct = row.plan_credits > 0 ? Math.min(Math.round((row.fact_credits / row.plan_credits) * 100), 100) : 0;
+        function loadData() {
+            const box = document.getElementById("leaderboard-container");
+            box.innerHTML = '<p style="text-align:center; padding:10px;">Загрузка данных...</p>';
+            
+            fetch(`${URL_API}?report_date=eq.${getToday()}`, {
+                method: 'GET', headers: { 'apikey': KEY_API, 'Authorization': `Bearer ${KEY_API}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                box.innerHTML = "";
+                listVSP.forEach(vsp => {
+                    const r = data.find(item => item.vsp_number === vsp) || { plan_credits: 0, fact_credits: 0 };
+                    const pct = r.plan_credits > 0 ? Math.min(Math.round((r.fact_credits / r.plan_credits) * 100), 100) : 0;
                     
-                    container.innerHTML += `
-                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                            <div class="flex justify-between text-xs font-semibold mb-1">
-                                <span class="text-gray-700">ВСП ${vsp}</span>
-                                <span class="text-gray-500">Факт: ${row.fact_credits} / План: ${row.plan_credits} млн</span>
+                    box.innerHTML += `
+                        <div class="report-card">
+                            <div class="report-meta">
+                                <span>ВСП ${vsp}</span>
+                                <span style="color:#666;">Ф: ${r.fact_credits} / П: ${r.plan_credits} млн</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-amber-500 h-2.5 rounded-full" style="width: ${pct}%"></div>
-                            </div>
-                            <div class="text-right text-[10px] text-gray-400 mt-0.5">Выполнение: ${pct}%</div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+                            <div class="pct-label">Выполнение: ${pct}%</div>
                         </div>
                     `;
                 });
-            } catch (err) {
-                container.innerHTML = `<p class="text-xs text-red-500">Ошибка загрузки: ${err.message}</p>`;
-            }
+            }).catch(() => { box.innerHTML = '<p style="color:red;">Ошибка соединения</p>'; });
         }
     </script>
 </body>
