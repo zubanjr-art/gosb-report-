@@ -20,7 +20,6 @@
             flex-direction: column;
             background-color: #faf8f5;
         }
-        /* Фикс для предотвращения дерганья интерфейса в CodePen */
         .tab-content {
             animation: fadeIn 0.2s ease-in-out;
         }
@@ -52,19 +51,19 @@
         </div>
     </div>
 
-    <div id="main-screen" class="hidden mobile-container shadow-2xl bg-white relative">
+    <div id="main-screen" class="hidden mobile-container shadow-2xl bg-white relative pb-16">
         
-        <div class="bg-[#107c41] p-4 text-white flex justify-between items-center shadow-md shrink-0">
-            <div>
-                <h2 id="user-role-title" class="font-bold text-sm sm:text-base truncate max-w-[220px]">Панель управления</h2>
+        <div class="bg-[#107c41] p-4 text-white flex justify-between items-center shadow-md shrink-0 z-10">
+            <div class="min-w-0 flex-1">
+                <h2 id="user-role-title" class="font-bold text-base truncate pr-2">Панель управления</h2>
                 <p id="user-sub-title" class="text-xs opacity-80">Загрузка...</p>
             </div>
-            <button onclick="handleLogout()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 rounded-lg text-xs font-medium transition">
+            <button onclick="handleLogout()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 rounded-lg text-xs font-medium transition shrink-0 ml-2">
                 Выйти
             </button>
         </div>
 
-        <div class="flex-grow p-5 overflow-y-auto space-y-5 pb-24">
+        <div class="flex-grow p-5 overflow-y-auto space-y-5">
             
             <div id="tab-content-morning" class="tab-content hidden space-y-4">
                 <h3 id="morning-tab-title" class="font-bold text-gray-700 text-base border-l-4 border-emerald-600 pl-2">Утренние данные</h3>
@@ -77,23 +76,23 @@
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3">
                     <div>
                         <label id="label-credits" class="block text-xs font-semibold text-gray-600 mb-1">Кредиты (тыс руб):</label>
-                        <input type="number" id="morning-credits" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
+                        <input type="number" id="morning-credits" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
                     </div>
                     <div>
                         <label id="label-chkd" class="block text-xs font-semibold text-gray-600 mb-1">ЧКД (тыс руб):</label>
-                        <input type="number" id="morning-chkd" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
+                        <input type="number" id="morning-chkd" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
                     </div>
                     <div>
                         <label id="label-trust" class="block text-xs font-semibold text-gray-600 mb-1">Уровень доверия (шт):</label>
-                        <input type="number" id="morning-trust" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
+                        <input type="number" id="morning-trust" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
                     </div>
                     <div>
                         <label id="label-nkk" class="block text-xs font-semibold text-gray-600 mb-1">НКК (шт):</label>
-                        <input type="number" id="morning-nkk" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
+                        <input type="number" id="morning-nkk" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-emerald-500" value="0">
                     </div>
                 </div>
 
-                <button onclick="saveMorningData()" class="w-full bg-[#107c41] text-white py-3 rounded-xl font-semibold shadow hover:bg-emerald-700 transition">
+                <button onclick="saveMorningData()" class="w-full bg-[#107c41] text-white py-3.5 rounded-xl font-semibold shadow hover:bg-emerald-700 transition">
                     Сохранить в базу
                 </button>
             </div>
@@ -105,23 +104,23 @@
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Выдано Кредитов за день (тыс руб):</label>
-                        <input type="number" id="evening-credits" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
+                        <input type="number" id="evening-credits" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Выполнено ЧКД за день (тыс руб):</label>
-                        <input type="number" id="evening-chkd" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
+                        <input type="number" id="evening-chkd" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Уровень доверия за день (шт):</label>
-                        <input type="number" id="evening-trust" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
+                        <input type="number" id="evening-trust" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Привлечено НКК за день (шт):</label>
-                        <input type="number" id="evening-nkk" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
+                        <input type="number" id="evening-nkk" class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:border-blue-500" value="0">
                     </div>
                 </div>
 
-                <button onclick="saveEveningData()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-blue-700 transition">
+                <button onclick="saveEveningData()" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold shadow hover:bg-blue-700 transition">
                     Отправить факт за сегодня
                 </button>
             </div>
@@ -169,12 +168,12 @@
             </div>
         </div>
 
-        <div id="bottom-nav" class="border-t border-gray-200 bg-gray-50 flex justify-around py-2 text-xs font-medium text-gray-500 absolute bottom-0 left-0 right-0 z-50">
+        <div id="bottom-nav" class="border-t border-gray-200 bg-gray-50 flex justify-around py-2.5 text-xs font-medium text-gray-500 absolute bottom-0 left-0 right-0 z-50 shadow-lg">
             <button id="nav-btn-morning" onclick="switchTab('morning')" class="flex flex-col items-center space-y-1 py-1 transition flex-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                <span id="nav-text-morning">Утро</span>
+                <span id="nav-text-morning">Планы</span>
             </button>
-            <button id="nav-btn-evening" onclick="switchTab('evening')" class="flex flex-col items-center space-y-1 py-1 transition flex-1">
+            <button id="nav-btn-evening" onclick="switchTab('evening')" class="flex flex-col items-center space-y-1 py-1 transition flex-1 hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 <span>Вечер</span>
             </button>
@@ -215,6 +214,23 @@
             let opt = document.createElement("option"); opt.value = vsp; opt.textContent = `ВСП ${vsp}`; select.appendChild(opt);
         });
 
+        // Базовые заголовки запроса для обхода CORS ограничений
+        function getFetchOptions(method, body = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            if (body) {
+                options.body = JSON.stringify(body);
+                options.headers['Prefer'] = 'resolution=merge-duplicates';
+            }
+            return options;
+        }
+
         function handleLogin() {
             const pin = document.getElementById("pin-input").value;
             if (usersDB[pin]) {
@@ -225,11 +241,10 @@
                 document.getElementById("user-role-title").textContent = currentUser.name;
                 document.getElementById("user-sub-title").textContent = currentUser.vsp;
 
-                // Разделение ролей и скрытие лишних вкладок
                 if (currentUser.role === "admin") {
                     document.getElementById("morning-tab-title").textContent = "Установить план на РАБОЧУЮ НЕДЕЛЮ";
                     document.getElementById("vsp-selection-block").classList.remove("hidden");
-                    document.getElementById("nav-btn-evening").classList.add("hidden"); // Скрываем "Вечер" для админа
+                    document.getElementById("nav-btn-evening").classList.add("hidden"); 
                     document.getElementById("nav-text-morning").textContent = "Планы";
                     
                     document.getElementById("label-credits").textContent = "Недельный план по Кредитам (тыс руб):";
@@ -239,7 +254,7 @@
                 } else {
                     document.getElementById("morning-tab-title").textContent = "Предоставить утренний прогноз на день";
                     document.getElementById("vsp-selection-block").classList.add("hidden");
-                    document.getElementById("nav-btn-evening").classList.remove("hidden"); // Показываем "Вечер" для ВСП
+                    document.getElementById("nav-btn-evening").classList.remove("hidden"); 
                     document.getElementById("nav-text-morning").textContent = "Утро";
                     document.getElementById("vsp-fixed-label").textContent = `Закрепленный офис: ВСП ${currentUser.vsp}`;
                     
@@ -306,18 +321,12 @@
             }
 
             try {
-                const response = await fetch(SUPABASE_REST_URL, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify(payload)
-                });
-                // Обобщенная обработка сетевых ошибок фрейма CodePen
-                if (!response && !response.ok) throw new Error("CORS / Sandbox Restriction");
+                const response = await fetch(SUPABASE_REST_URL, getFetchOptions('POST', payload));
+                if (!response.ok) throw new Error("CORS or Database error");
                 alert(currentUser.role === "admin" ? `Недельный план для ВСП ${vsp} сохранен!` : "Ваш утренний прогноз отправлен!");
                 loadAnalytics();
             } catch (err) { 
-                alert("Данные успешно отправлены в Supabase! (Браузер скрыл ответ из-за ограничений CodePen)");
-                loadAnalytics();
+                alert("Ошибка соединения с базой данных. Проверьте подключение.");
             }
         }
 
@@ -332,17 +341,12 @@
             };
 
             try {
-                const response = await fetch(SUPABASE_REST_URL, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response && !response.ok) throw new Error("Network Error");
+                const response = await fetch(SUPABASE_REST_URL, getFetchOptions('POST', payload));
+                if (!response.ok) throw new Error("Network Error");
                 alert(`Вечерний факт по ВСП ${vsp} за сегодня принят!`);
                 loadAnalytics();
             } catch (err) { 
-                alert("Данные факта успешно переданы! (Служебное уведомление CodePen обработано)");
-                loadAnalytics();
+                alert("Ошибка сохранения вечернего факта.");
             }
         }
 
@@ -353,13 +357,13 @@
             const week = getWeekRange();
 
             try {
-                const response = await fetch(`${SUPABASE_REST_URL}?report_date=gte.${week.start}&report_date=lte.${week.end}`, {
-                    method: 'GET', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                if (!response.ok) throw new Error(response.statusText);
+                const response = await fetch(`${SUPABASE_REST_URL}?report_date=gte.${week.start}&report_date=lte.${week.end}`, getFetchOptions('GET'));
+                if (!response.ok) throw new Error("Load failed");
                 rawCachedData = await response.json();
                 renderLeaderboard();
-            } catch (err) { container.innerHTML = `<p class="text-xs text-red-500 text-center">Ошибка загрузки: ${err.message}</p>`; }
+            } catch (err) { 
+                container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Ошибка загрузки данных: проверьте настройки сети</p>`; 
+            }
         }
 
         function switchProductAnalytic(product) {
