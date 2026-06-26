@@ -41,7 +41,7 @@
             <h1 class="text-xl font-bold text-gray-800 mb-1">Система отчетности ГОСБ</h1>
             <p class="text-sm text-gray-400 mb-6">Введите ваш персональный код доступа</p>
             
-            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" placeholder="••••" 
+            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" placeholder="••••••" 
                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-center text-xl tracking-widest focus:outline-none focus:border-emerald-500 mb-4">
             
             <button onclick="handleLogin()" class="w-full bg-[#107c41] text-white py-3 rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition duration-200">
@@ -190,7 +190,7 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
         const usersDB = {
-            "7777": { role: "admin", name: "Администратор ГОСБ", vsp: "ГОСБ 8586" },
+            "777777": { role: "admin", name: "Администратор ГОСБ", vsp: "ГОСБ 8586" },
             "858602": { role: "vsp", name: "Руководитель ВСП 8586/02", vsp: "8586/02" },
             "858603": { role: "vsp", name: "Руководитель ВСП 8586/03", vsp: "8586/03" },
             "858604": { role: "vsp", name: "Руководитель ВСП 8586/04", vsp: "8586/04" },
@@ -322,7 +322,7 @@
 
             try {
                 const response = await fetch(SUPABASE_REST_URL, getFetchOptions('POST', payload));
-                if (!response.ok) throw new Error("CORS or Database error");
+                if (!response.ok) throw new Error("Database error");
                 alert(currentUser.role === "admin" ? `Недельный план для ВСП ${vsp} сохранен!` : "Ваш утренний прогноз отправлен!");
                 loadAnalytics();
             } catch (err) { 
@@ -333,10 +333,11 @@
         async function saveEveningData() {
             const vsp = currentUser.vsp;
             const payload = {
-                vsp_number: vsp, report_date: getTodayDate(),
+                vsp_number: vsp, 
+                report_date: getTodayDate(),
                 fact_credits: parseFloat(document.getElementById("evening-credits").value) || 0,
                 fact_chkd: parseFloat(document.getElementById("evening-chkd").value) || 0,
-                fact_trust = parseInt(document.getElementById("evening-trust").value) || 0,
+                fact_trust: parseInt(document.getElementById("evening-trust").value) || 0,
                 fact_nkk: parseInt(document.getElementById("evening-nkk").value) || 0
             };
 
