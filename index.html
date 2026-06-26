@@ -185,8 +185,9 @@
     </div>
 
     <script>
-        const SUPABASE_REST_URL = "https://clgcmdwzofskgcorptes.supabase.co/rest/v1/gosb_reports";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ2NtZHd6b2Zza2djb3JwdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODQwOTAsImV4cCI6MjAzMjQ1OTY5MH0.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
+        // АКТУАЛЬНЫЕ НАСТРОЙКИ ПРОЕКТА OPERATION CKP И ТАБЛИЦЫ DAILY_REPORTS
+        const SUPABASE_REST_URL = "https://ppjhkgscgocnxvacxjf.supabase.co/rest/v1/daily_reports";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
         const usersDB = {
             "7777": { role: "admin", name: "Администратор ГОСБ", vsp: "ГОСБ 8586" },
@@ -214,7 +215,6 @@
             let opt = document.createElement("option"); opt.value = vsp; opt.textContent = `ВСП ${vsp}`; select.appendChild(opt);
         });
 
-        // Базовые заголовки запроса для обхода CORS ограничений
         function getFetchOptions(method, body = null) {
             const options = {
                 method: method,
@@ -336,7 +336,7 @@
                 vsp_number: vsp, report_date: getTodayDate(),
                 fact_credits: parseFloat(document.getElementById("evening-credits").value) || 0,
                 fact_chkd: parseFloat(document.getElementById("evening-chkd").value) || 0,
-                fact_trust: parseInt(document.getElementById("evening-trust").value) || 0,
+                fact_trust = parseInt(document.getElementById("evening-trust").value) || 0,
                 fact_nkk: parseInt(document.getElementById("evening-nkk").value) || 0
             };
 
