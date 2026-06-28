@@ -127,7 +127,6 @@ class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border b
 
 <!-- ВКЛАДКА: АНАЛИТИКА -->
 <div id="tab-content-analytics" class="tab-content space-y-4 hidden">
-<!-- Переключатель продуктов -->
 <div class="bg-gray-200 p-1 rounded-xl grid grid-cols-4 gap-1 text-[11px] font-semibold text-gray-500 text-center">
 <button id="subtab-credits" onclick="switchProductAnalytic('credits')" class="py-2 rounded-lg bg-white text-gray-800 shadow transition-all">Кредиты</button>
 <button id="subtab-chkd" onclick="switchProductAnalytic('chkd')" class="py-2 rounded-lg transition-all">ЧКД</button>
@@ -135,7 +134,6 @@ class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border b
 <button id="subtab-nkk" onclick="switchProductAnalytic('nkk')" class="py-2 rounded-lg transition-all">НКК</button>
 </div>
 
-<!-- Суммарная карточка агрегации данных -->
 <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3">
 <div class="flex justify-between items-center border-b border-gray-100 pb-2.5">
 <span id="selected-count-label" class="text-xs font-bold text-gray-500">Выбрано: 11 из 11</span>
@@ -162,13 +160,11 @@ class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border b
 </div>
 </div>
 
-<!-- Список подразделений / лидерборд -->
 <div class="space-y-2" id="leaderboard-container"></div>
 </div>
 
 </main>
 
-<!-- Нижнее навигационное меню -->
 <nav id="bottom-nav" class="bg-white/95 backdrop-blur border-t border-gray-200 fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around px-2 z-50 max-w-md mx-auto shadow-xl">
 <button id="nav-btn-morning" onclick="switchTab('morning')" class="flex flex-col items-center space-y-0.5 text-gray-400 transition-colors">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 11H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -185,7 +181,6 @@ class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border b
 </nav>
 </div>
 
-<!-- Скрипты управления -->
 <script>
 const SUPABASE_REST_URL = "https://ppjhkgscgocnxvacxjf.supabase.co/rest/v1/daily_reports";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
@@ -290,34 +285,11 @@ end: sunday.toISOString().split('T')[0]
 };
 }
 
-// Вспомогательная функция с корректными заголовками контента
-async function fetchExistingRecord(vsp, date) {
-try {
-const response = await fetch(`${SUPABASE_REST_URL}?vsp_number=eq.${encodeURIComponent(vsp)}&report_date=eq.${date}`, {
-method: 'GET',
-headers: {
-'apikey': SUPABASE_KEY,
-'Authorization': `Bearer ${SUPABASE_KEY}`,
-'Content-Type': 'application/json'
-}
-});
-if (!response.ok) return null;
-const data = await response.json();
-return data && data.length > 0 ? data[0] : null;
-} catch (e) {
-console.error("Ошибка проверки записи:", e);
-return null;
-}
-}
-
+// ИСПОЛЬЗУЕМ ЧИСТЫЙ И КОРРЕКТНЫЙ ИНСТРУМЕНТ ОДНОПРОХОДНОГО ИЗМЕНЕНИЯ (UPSERT)
 async function saveMorningData() {
 const vsp = currentUser.role === "admin" ? document.getElementById("plan-vsp-select").value : currentUser.vsp;
 const today = getTodayDate();
 
-const existingRecord = await fetchExistingRecord(vsp, today);
-
-let method = 'POST';
-let url = SUPABASE_REST_URL;
 const payload = { vsp_number: vsp, report_date: today };
 
 if (currentUser.role === "admin") {
@@ -332,33 +304,29 @@ payload.prog_trust = parseInt(document.getElementById("morning-trust").value) ||
 payload.prog_nkk = parseInt(document.getElementById("morning-nkk").value) || 0;
 }
 
-if (existingRecord && existingRecord.id) {
-method = 'PATCH';
-url = `${SUPABASE_REST_URL}?id=eq.${existingRecord.id}`;
-}
-
 try {
-const response = await fetch(url, {
-method: method,
+// Используем POST с заголовком resolution=merge-duplicates для безопасного UPSERT
+const response = await fetch(SUPABASE_REST_URL, {
+method: 'POST',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
 'Content-Type': 'application/json',
-'Prefer': 'return=minimal'
+'Prefer': 'resolution=merge-duplicates'
 },
 body: JSON.stringify(payload)
 });
 
 if (!response.ok) {
 const errorText = await response.text();
-throw new Error(errorText);
+throw new Error(errorText || `Код ответа: ${response.status}`);
 }
 
 alert(currentUser.role === "admin" ? `Недельный план для ВСП ${vsp} сохранен!` : "Ваш утренний прогноз отправлен!");
 loadAnalytics();
 } catch (err) {
 console.error(err);
-alert("Ошибка сохранения: " + err.message);
+alert("Ошибка сохранения.\n\nВозможная причина: блокировка сети со стороны прокси-сервера.\n\nДетали ошибки: " + err.message);
 }
 }
 
@@ -366,10 +334,6 @@ async function saveEveningData() {
 const vsp = currentUser.vsp;
 const today = getTodayDate();
 
-const existingRecord = await fetchExistingRecord(vsp, today);
-
-let method = 'POST';
-let url = SUPABASE_REST_URL;
 const payload = {
 vsp_number: vsp,
 report_date: today,
@@ -379,33 +343,28 @@ fact_trust: parseInt(document.getElementById("evening-trust").value) || 0,
 fact_nkk: parseInt(document.getElementById("evening-nkk").value) || 0
 };
 
-if (existingRecord && existingRecord.id) {
-method = 'PATCH';
-url = `${SUPABASE_REST_URL}?id=eq.${existingRecord.id}`;
-}
-
 try {
-const response = await fetch(url, {
-method: method,
+const response = await fetch(SUPABASE_REST_URL, {
+method: 'POST',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
 'Content-Type': 'application/json',
-'Prefer': 'return=minimal'
+'Prefer': 'resolution=merge-duplicates'
 },
 body: JSON.stringify(payload)
 });
 
 if (!response.ok) {
 const errorText = await response.text();
-throw new Error(errorText);
+throw new Error(errorText || `Код ответа: ${response.status}`);
 }
 
 alert(`Вечерний факт по ВСП ${vsp} за сегодня принят!`);
 loadAnalytics();
 } catch (err) {
 console.error(err);
-alert("Ошибка сохранения: " + err.message);
+alert("Ошибка сохранения.\n\nВозможная причина: блокировка сети со стороны прокси-сервера.\n\nДетали ошибки: " + err.message);
 }
 }
 
@@ -420,15 +379,14 @@ const response = await fetch(`${SUPABASE_REST_URL}?report_date=gte.${week.start}
 method: 'GET',
 headers: {
 'apikey': SUPABASE_KEY,
-'Authorization': `Bearer ${SUPABASE_KEY}`,
-'Content-Type': 'application/json'
+'Authorization': `Bearer ${SUPABASE_KEY}`
 }
 });
-if (!response.ok) throw new Error("Load failed");
+if (!response.ok) throw new Error("Ошибка чтения");
 rawCachedData = await response.json();
 renderLeaderboard();
 } catch (err) {
-container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Ошибка загрузки данных: проверьте настройки сети</p>`;
+container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Сеть заблокировала загрузку данных аналитики</p>`;
 }
 }
 
