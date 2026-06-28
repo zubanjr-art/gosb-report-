@@ -222,7 +222,6 @@ vspList.forEach(vsp => {
 let opt = document.createElement("option"); opt.value = vsp; opt.textContent = `ВСП ${vsp}`; select.appendChild(opt);
 });
 
-// ПРОВЕРКА СОХРАНЕННОЙ АВТОРИЗАЦИИ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ
 window.addEventListener('DOMContentLoaded', () => {
 const savedPin = localStorage.getItem('vsp_user_pin');
 if (savedPin && usersDB[savedPin]) {
@@ -235,14 +234,10 @@ function handleLogin(isAutoLogin = false) {
 const pin = document.getElementById("pin-input").value;
 if (usersDB[pin]) {
 currentUser = usersDB[pin];
-
-if (!isAutoLogin) {
-localStorage.setItem('vsp_user_pin', pin);
-}
+if (!isAutoLogin) { localStorage.setItem('vsp_user_pin', pin); }
 
 document.getElementById("auth-screen").classList.add("hidden");
 document.getElementById("main-screen").classList.remove("hidden");
-
 document.getElementById("user-role-title").textContent = currentUser.name;
 document.getElementById("user-sub-title").textContent = currentUser.vsp;
 
@@ -271,7 +266,6 @@ document.getElementById("label-chkd").textContent = "Прогноз по ЧКД 
 document.getElementById("label-trust").textContent = "Прогноз по Уровню доверия на сегодня (шт):";
 document.getElementById("label-nkk").textContent = "Прогноз по НКК на сегодня (шт):";
 }
-
 switchTab("morning");
 loadAnalytics();
 } else {
@@ -307,17 +301,14 @@ const monday = new Date(today);
 monday.setDate(today.getDate() + distanceToMonday);
 const sunday = new Date(monday);
 sunday.setDate(monday.getDate() + 6);
-return {
-start: monday.toISOString().split('T')[0],
-end: sunday.toISOString().split('T')[0]
-};
+return { start: monday.toISOString().split('T')[0], end: sunday.toISOString().split('T')[0] };
 }
 
-// ПРЯМЫЕ ЗАПРОСЫ К SUPABASE БЕЗ ИСПОЛЬЗОВАНИЯ СТОРОННИХ ПРОКСИ
 async function checkExistingReport(vsp, date) {
 try {
 const response = await fetch(`${SUPABASE_REST_URL}?vsp_number=eq.${encodeURIComponent(vsp)}&report_date=eq.${date}`, {
 method: 'GET',
+mode: 'cors',
 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
 });
 if (!response.ok) return null;
@@ -329,8 +320,8 @@ return data.length > 0 ? data[0] : null;
 async function saveMorningData() {
 const vsp = currentUser.role === "admin" ? document.getElementById("plan-vsp-select").value : currentUser.vsp;
 const today = getTodayDate();
-
 const fields = {};
+
 if (currentUser.role === "admin") {
 fields.plan_credits = parseFloat(document.getElementById("morning-credits").value) || 0;
 fields.plan_chkd = parseFloat(document.getElementById("morning-chkd").value) || 0;
@@ -358,6 +349,7 @@ fields.report_date = today;
 try {
 const response = await fetch(targetUrl, {
 method: method,
+mode: 'cors',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -372,17 +364,16 @@ alert("Данные успешно внесены в базу!");
 loadAnalytics();
 } else {
 const errText = await response.text();
-alert("Ошибка сервера при сохранении: " + errText);
+alert("Ошибка сервера: " + errText);
 }
 } catch (e) {
-alert("Ошибка сети: не удалось связаться с базой данных.");
+alert("Ошибка сети: не удалось связаться с базой данных. Попробуйте обновить страницу или зайти через HTTPS.");
 }
 }
 
 async function saveEveningData() {
 const vsp = currentUser.vsp;
 const today = getTodayDate();
-
 const fields = {
 fact_credits: parseFloat(document.getElementById("evening-credits").value) || 0,
 fact_chkd: parseFloat(document.getElementById("evening-chkd").value) || 0,
@@ -405,6 +396,7 @@ fields.report_date = today;
 try {
 const response = await fetch(targetUrl, {
 method: method,
+mode: 'cors',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -434,6 +426,7 @@ const week = getWeekRange();
 try {
 const response = await fetch(`${SUPABASE_REST_URL}?report_date=gte.${week.start}&report_date=lte.${week.end}`, {
 method: 'GET',
+mode: 'cors',
 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
 });
 if (!response.ok) throw new Error("Ошибка чтения");
@@ -480,7 +473,6 @@ if (todayRecord) {
 totalFactToday += (todayRecord[`fact_${currentAnalyticProduct}`] || 0);
 totalProgToday += (todayRecord[`prog_${currentAnalyticProduct}`] || 0);
 }
-
 vspRecords.forEach(r => { totalFactWeek += (r[`fact_${currentAnalyticProduct}`] || 0); });
 const planRow = vspRecords.find(r => (r[`plan_${currentAnalyticProduct}`] || 0) > 0);
 if (planRow) { totalPlanWeek += planRow[`plan_${currentAnalyticProduct}`]; }
@@ -551,9 +543,7 @@ class="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-
 <span>ВСП ${vsp}</span>
 <span class="text-emerald-600 font-black">${pct}%</span>
 </div>
-
 ${infoBlock}
-
 <div class="w-full bg-gray-100 rounded-full h-1.5 my-2">
 <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
 </div>
@@ -564,7 +554,6 @@ ${infoBlock}
 </div>
 `;
 });
-
 calculateSelectedSum();
 }
 
@@ -573,47 +562,21 @@ if (rawCachedData.length === 0) {
 alert("Нет данных для выгрузки. Сначала загрузите вкладку Аналитика.");
 return;
 }
-
-const headers = [
-"Дата", "Номер ВСП",
-"План Кредиты", "Прогноз Кредиты", "Факт Кредиты",
-"План ЧКД", "Прогноз ЧКД", "Факт ЧКД",
-"План Доверие", "Прогноз Доверие", "Факт Доверие",
-"План НКК", "Прогноз НКК", "Факт НКК"
-];
-
-let csvRows = [];
-csvRows.push(headers.join(";"));
+const headers = ["Дата", "Номер ВСП", "План Кредиты", "Прогноз Кредиты", "Факт Кредиты", "План ЧКД", "Прогноз ЧКД", "Факт ЧКД", "План Доверие", "Прогноз Доверие", "Факт Доверие", "План НКК", "Прогноз НКК", "Факт НКК"];
+let csvRows = [headers.join(";")];
 
 rawCachedData.forEach(row => {
-const values = [
-row.report_date || "",
-row.vsp_number || "",
-row.plan_credits || 0,
-row.prog_credits || 0,
-row.fact_credits || 0,
-row.plan_chkd || 0,
-row.prog_chkd || 0,
-row.fact_chkd || 0,
-row.plan_trust || 0,
-row.prog_trust || 0,
-row.fact_trust || 0,
-row.plan_nkk || 0,
-row.prog_nkk || 0,
-row.fact_nkk || 0
-];
+const values = [row.report_date || "", row.vsp_number || "", row.plan_credits || 0, row.prog_credits || 0, row.fact_credits || 0, row.plan_chkd || 0, row.prog_chkd || 0, row.fact_chkd || 0, row.plan_trust || 0, row.prog_trust || 0, row.fact_trust || 0, row.plan_nkk || 0, row.prog_nkk || 0, row.fact_nkk || 0];
 csvRows.push(values.join(";"));
 });
 
 const csvContent = "\uFEFF" + csvRows.join("\n");
 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 const url = URL.createObjectURL(blob);
-
 const link = document.createElement("a");
 link.setAttribute("href", url);
 link.setAttribute("download", `Otchet_GOSB_8586_${getTodayDate()}.csv`);
 document.body.appendChild(link);
-
 link.click();
 document.body.removeChild(link);
 }
