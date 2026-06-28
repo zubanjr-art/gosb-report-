@@ -285,48 +285,79 @@ end: sunday.toISOString().split('T')[0]
 };
 }
 
-// ИСПОЛЬЗУЕМ ЧИСТЫЙ И КОРРЕКТНЫЙ ИНСТРУМЕНТ ОДНОПРОХОДНОГО ИЗМЕНЕНИЯ (UPSERT)
+// КЛАССИЧЕСКАЯ ОДНОЗНАЧНАЯ ПРОВЕРКА СУЩЕСТВОВАНИЯ И КОРРЕКТНЫЙ СТАНДАРТНЫЙ ЗАПРОС
+async function checkExistingReport(vsp, date) {
+const response = await fetch(`${SUPABASE_REST_URL}?vsp_number=eq.${encodeURIComponent(vsp)}&report_date=eq.${date}`, {
+method: 'GET',
+headers: {
+'apikey': SUPABASE_KEY,
+'Authorization': `Bearer ${SUPABASE_KEY}`
+}
+});
+if (!response.ok) throw new Error("Не удалось проверить статус строки");
+const data = await response.json();
+return data.length > 0 ? data[0] : null;
+}
+
 async function saveMorningData() {
 const vsp = currentUser.role === "admin" ? document.getElementById("plan-vsp-select").value : currentUser.vsp;
 const today = getTodayDate();
 
-const payload = { vsp_number: vsp, report_date: today };
-
+const fields = {};
 if (currentUser.role === "admin") {
-payload.plan_credits = parseFloat(document.getElementById("morning-credits").value) || 0;
-payload.plan_chkd = parseFloat(document.getElementById("morning-chkd").value) || 0;
-payload.plan_trust = parseInt(document.getElementById("morning-trust").value) || 0;
-payload.plan_nkk = parseInt(document.getElementById("morning-nkk").value) || 0;
+fields.plan_credits = parseFloat(document.getElementById("morning-credits").value) || 0;
+fields.plan_chkd = parseFloat(document.getElementById("morning-chkd").value) || 0;
+fields.plan_trust = parseInt(document.getElementById("morning-trust").value) || 0;
+fields.plan_nkk = parseInt(document.getElementById("morning-nkk").value) || 0;
 } else {
-payload.prog_credits = parseFloat(document.getElementById("morning-credits").value) || 0;
-payload.prog_chkd = parseFloat(document.getElementById("morning-chkd").value) || 0;
-payload.prog_trust = parseInt(document.getElementById("morning-trust").value) || 0;
-payload.prog_nkk = parseInt(document.getElementById("morning-nkk").value) || 0;
+fields.prog_credits = parseFloat(document.getElementById("morning-credits").value) || 0;
+fields.prog_chkd = parseFloat(document.getElementById("morning-chkd").value) || 0;
+fields.prog_trust = parseInt(document.getElementById("morning-trust").value) || 0;
+fields.prog_nkk = parseInt(document.getElementById("morning-nkk").value) || 0;
 }
 
 try {
-// Используем POST с заголовком resolution=merge-duplicates для безопасного UPSERT
-const response = await fetch(SUPABASE_REST_URL, {
+const existing = await checkExistingReport(vsp, today);
+let response;
+
+if (existing) {
+// Если строка уже есть, обновляем её через PATCH по ID
+response = await fetch(`${SUPABASE_REST_URL}?id=eq.${existing.id}`, {
+method: 'PATCH',
+headers: {
+'apikey': SUPABASE_KEY,
+'Authorization': `Bearer ${SUPABASE_KEY}`,
+'Content-Type': 'application/json',
+'Prefer': 'return=minimal'
+},
+body: JSON.stringify(fields)
+});
+} else {
+// Если строки нет, создаем её через чистый POST
+fields.vsp_number = vsp;
+fields.report_date = today;
+response = await fetch(SUPABASE_REST_URL, {
 method: 'POST',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
 'Content-Type': 'application/json',
-'Prefer': 'resolution=merge-duplicates'
+'Prefer': 'return=minimal'
 },
-body: JSON.stringify(payload)
+body: JSON.stringify(fields)
 });
-
-if (!response.ok) {
-const errorText = await response.text();
-throw new Error(errorText || `Код ответа: ${response.status}`);
 }
 
-alert(currentUser.role === "admin" ? `Недельный план для ВСП ${vsp} сохранен!` : "Ваш утренний прогноз отправлен!");
+if (!response.ok) {
+const txt = await response.text();
+throw new Error(txt || `Статус: ${response.status}`);
+}
+
+alert(currentUser.role === "admin" ? `Недельный план для ВСП ${vsp} успешно сохранен!` : "Ваш утренний прогноз отправлен!");
 loadAnalytics();
 } catch (err) {
 console.error(err);
-alert("Ошибка сохранения.\n\nВозможная причина: блокировка сети со стороны прокси-сервера.\n\nДетали ошибки: " + err.message);
+alert("Ошибка при передаче данных на телефоне.\n\nДетали: " + err.message);
 }
 }
 
@@ -334,9 +365,7 @@ async function saveEveningData() {
 const vsp = currentUser.vsp;
 const today = getTodayDate();
 
-const payload = {
-vsp_number: vsp,
-report_date: today,
+const fields = {
 fact_credits: parseFloat(document.getElementById("evening-credits").value) || 0,
 fact_chkd: parseFloat(document.getElementById("evening-chkd").value) || 0,
 fact_trust: parseInt(document.getElementById("evening-trust").value) || 0,
@@ -344,27 +373,45 @@ fact_nkk: parseInt(document.getElementById("evening-nkk").value) || 0
 };
 
 try {
-const response = await fetch(SUPABASE_REST_URL, {
+const existing = await checkExistingReport(vsp, today);
+let response;
+
+if (existing) {
+response = await fetch(`${SUPABASE_REST_URL}?id=eq.${existing.id}`, {
+method: 'PATCH',
+headers: {
+'apikey': SUPABASE_KEY,
+'Authorization': `Bearer ${SUPABASE_KEY}`,
+'Content-Type': 'application/json',
+'Prefer': 'return=minimal'
+},
+body: JSON.stringify(fields)
+});
+} else {
+fields.vsp_number = vsp;
+fields.report_date = today;
+response = await fetch(SUPABASE_REST_URL, {
 method: 'POST',
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
 'Content-Type': 'application/json',
-'Prefer': 'resolution=merge-duplicates'
+'Prefer': 'return=minimal'
 },
-body: JSON.stringify(payload)
+body: JSON.stringify(fields)
 });
+}
 
 if (!response.ok) {
-const errorText = await response.text();
-throw new Error(errorText || `Код ответа: ${response.status}`);
+const txt = await response.text();
+throw new Error(txt || `Статус: ${response.status}`);
 }
 
 alert(`Вечерний факт по ВСП ${vsp} за сегодня принят!`);
 loadAnalytics();
 } catch (err) {
 console.error(err);
-alert("Ошибка сохранения.\n\nВозможная причина: блокировка сети со стороны прокси-сервера.\n\nДетали ошибки: " + err.message);
+alert("Ошибка при передаче вечерних данных на телефоне.\n\nДетали: " + err.message);
 }
 }
 
@@ -386,7 +433,7 @@ if (!response.ok) throw new Error("Ошибка чтения");
 rawCachedData = await response.json();
 renderLeaderboard();
 } catch (err) {
-container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Сеть заблокировала загрузку данных аналитики</p>`;
+container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Не удалось обновить аналитику</p>`;
 }
 }
 
