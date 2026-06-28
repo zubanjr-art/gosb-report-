@@ -187,7 +187,6 @@ class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border b
 
 <!-- Скрипты управления -->
 <script>
-// АКТУАЛЬНЫЕ НАСТРОЙКИ ПРОЕКТА OPERATION CKP И ТАБЛИЦЫ DAILY_REPORTS
 const SUPABASE_REST_URL = "https://ppjhkgscgocnxvacxjf.supabase.co/rest/v1/daily_reports";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
@@ -291,14 +290,15 @@ end: sunday.toISOString().split('T')[0]
 };
 }
 
-// Вспомогательная функция для точечной проверки существующей записи за сегодня
+// Вспомогательная функция с корректными заголовками контента
 async function fetchExistingRecord(vsp, date) {
 try {
 const response = await fetch(`${SUPABASE_REST_URL}?vsp_number=eq.${encodeURIComponent(vsp)}&report_date=eq.${date}`, {
 method: 'GET',
 headers: {
 'apikey': SUPABASE_KEY,
-'Authorization': `Bearer ${SUPABASE_KEY}`
+'Authorization': `Bearer ${SUPABASE_KEY}`,
+'Content-Type': 'application/json'
 }
 });
 if (!response.ok) return null;
@@ -343,7 +343,8 @@ method: method,
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
-'Content-Type': 'application/json'
+'Content-Type': 'application/json',
+'Prefer': 'return=minimal'
 },
 body: JSON.stringify(payload)
 });
@@ -389,7 +390,8 @@ method: method,
 headers: {
 'apikey': SUPABASE_KEY,
 'Authorization': `Bearer ${SUPABASE_KEY}`,
-'Content-Type': 'application/json'
+'Content-Type': 'application/json',
+'Prefer': 'return=minimal'
 },
 body: JSON.stringify(payload)
 });
@@ -418,7 +420,8 @@ const response = await fetch(`${SUPABASE_REST_URL}?report_date=gte.${week.start}
 method: 'GET',
 headers: {
 'apikey': SUPABASE_KEY,
-'Authorization': `Bearer ${SUPABASE_KEY}`
+'Authorization': `Bearer ${SUPABASE_KEY}`,
+'Content-Type': 'application/json'
 }
 });
 if (!response.ok) throw new Error("Load failed");
@@ -432,7 +435,7 @@ container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Ошиб
 function switchProductAnalytic(product) {
 currentAnalyticProduct = product;
 document.querySelectorAll("[id^='subtab-']").forEach(btn => btn.classList.remove("bg-white", "text-gray-800", "shadow"));
-document.getElementById(`subtab-${product}`).add ? document.getElementById(`subtab-${product}`).classList.add("bg-white", "text-gray-800", "shadow") : document.getElementById(`subtab-${product}`).className += " bg-white text-gray-800 shadow";
+document.getElementById(`subtab-${product}`).classList.add("bg-white", "text-gray-800", "shadow");
 renderLeaderboard();
 }
 
