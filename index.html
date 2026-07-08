@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden { display: none !important; }
-        input:focus, select:focus { outline: none; border-color: #059669; }
+        input:focus { outline: none; border-color: #059669; }
         .section-title { @apply text-xs font-bold text-emerald-700 bg-emerald-50/50 p-2 rounded-lg mb-2 mt-3 block; }
         .sub-label { @apply block text-[11px] font-medium text-gray-500 mb-1 pl-1; }
         .num-input { @apply w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all focus:bg-white; }
@@ -243,6 +243,7 @@
     </div>
 
     <script>
+        // Использование прямого защищенного URL Supabase без проксирующих шлюзов
         const SUPABASE_REST_URL = "https://ppjhkgscgocnxvacxjf.supabase.co/rest/v1/daily_reports";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTtxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
@@ -342,7 +343,6 @@
             const vsp = currentUser.role === "admin" ? document.getElementById("plan-vsp-select").value : currentUser.vsp;
             const today = getTodayDate();
             
-            // Собираем абсолютно все поля формы по новым ИД
             const fields = {
                 vst_all: parseInt(document.getElementById("f_vst_all").value) || 0,
                 vst_ab: parseInt(document.getElementById("f_vst_ab").value) || 0,
@@ -402,10 +402,10 @@
                     loadAnalytics();
                 } else {
                     const errText = await response.text();
-                    alert("Ошибка базы: " + errText);
+                    alert("Ошибка при сохранении: " + errText);
                 }
             } catch (e) {
-                alert("Ошибка сети. Попробуйте отключить корпоративный Wi-Fi и отправить через мобильный интернет.");
+                alert("Ошибка соединения. Пожалуйста, отключите рабочий Wi-Fi / VPN и отправьте форму через сотовую сеть мобильного интернета.");
             }
         }
 
@@ -421,7 +421,7 @@
         }
 
         function exportToExcel() {
-            if (rawCachedData.length === 0) { alert("Данные еще не загрузились. Попробуйте через минуту."); return; }
+            if (rawCachedData.length === 0) { alert("Данные еще загружаются. Повторите попытку через несколько секунд."); return; }
             
             const headers = [
                 "Дата", "ВСП", "Встречи Всего", "Встречи А Б", "УД Всего", "УД ПУ РБ",
@@ -449,7 +449,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `Итоги_ГОСБ_Новая_Матрица.csv`);
+            link.setAttribute("download", `Итоги_ГОСБ_Матрица.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
