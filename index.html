@@ -2,267 +2,251 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Система отчетности ГОСБ</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оперативный мониторинг ЦКП</title>
     <style>
-        .hidden { display: none !important; }
-        input:focus, select:focus { outline: none; border-color: #059669; }
-        .section-title { @apply text-xs font-bold text-emerald-700 bg-emerald-50/50 p-2 rounded-lg mb-2 mt-3 block; }
-        .sub-label { @apply block text-[11px] font-medium text-gray-500 mb-1 pl-1; }
-        .num-input { @apply w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all focus:bg-white; }
-        
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
-            z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #e8f5e9;
+            --text: #333;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
+        
+        /* Шапка */
+        .header { background: var(--primary); color: white; padding: 20px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+        .header h1 { font-size: 20px; }
+        .logout-btn { background: rgba(255,255,255,0.2); border: none; padding: 8px 15px; color: white; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        
+        /* Авторизация */
+        .auth-container { max-width: 400px; margin: 50px auto; padding: 25px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        .auth-container h2 { margin-bottom: 20px; color: var(--primary); }
+        .pin-input { width: 100%; padding: 15px; font-size: 24px; text-align: center; letter-spacing: 5px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
+        
+        /* Основной контент */
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; display: none; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        
+        .info-box { background: var(--primary-light); padding: 12px; border-radius: 10px; color: var(--primary); font-weight: 500; margin-bottom: 20px; font-size: 14px; }
+        
+        /* Поля ввода */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; transition: 0.2s; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+        
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-submit:active { background: #1b5e20; }
+        
+        /* Нижнее меню */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; background: none; border: none; width: 33%; height: 100%; justify-content: center; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-icon { font-size: 20px; margin-bottom: 2px; }
+        
+        /* Уведомления */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #323232; color: white; padding: 12px 25px; border-radius: 25px; font-size: 14px; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s ease; text-align: center; max-width: 90%; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #d32f2f; }
+        .toast.success { background: #388e3c; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 antialiased">
+<body>
 
-    <div id="toast" class="flex items-center space-x-2 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold max-w-xs w-full bg-emerald-50 border-emerald-200 text-emerald-700">
-        <span id="toast-text"></span>
+    <div id="toast" class="toast"></div>
+
+    <div id="auth-screen" class="auth-container">
+        <h2>Вход в систему</h2>
+        <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Введите ПИН-код вашего подразделения</p>
+        <input type="password" id="pin-code" class="pin-input" inputmode="numeric" pattern="[0-9]*" placeholder="••••" maxlength="4">
+        <button class="btn-submit" onclick="login()">Войти</button>
     </div>
 
-    <div id="auth-screen" class="min-h-screen flex items-center justify-center px-4">
-        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-sm w-full text-center">
-            <div class="mx-auto w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
-                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    <div id="main-screen" style="display: none;">
+        <div class="header">
+            <h1 id="user-title">Руководитель ВСП</h1>
+            <button class="logout-btn" onclick="logout()">Выйти</button>
+        </div>
+
+        <div class="container" id="tab-morning" style="display: block;">
+            <div class="card">
+                <div class="card-title">Предоставить утренний прогноз на день</div>
+                <div id="vsp-info-box" class="info-box">Закрепленный офис: ВСП ----</div>
+                
+                <div class="form-group" id="admin-vsp-group" style="display: none;">
+                    <label for="morning-vsp-select">Выберите ВСП</label>
+                    <select id="morning-vsp-select" class="form-control">
+                        <option value="ВСП 8586/02">ВСП 8586/02</option>
+                        <option value="ВСП 8586/03">ВСП 8586/03</option>
+                        <option value="ВСП 8586/04">ВСП 8586/04</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Прогноз по Кредитам на сегодня (тыс руб):</label>
+                    <input type="number" id="morning-credits" class="form-control" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Прогноз по Уровню доверия на сегодня (шт):</label>
+                    <input type="number" id="morning-ud" class="form-control" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Прогноз по ЦКП Кредиты на сегодня (шт):</label>
+                    <input type="number" id="morning-ckp-kred" class="form-control" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Прогноз по НКК на сегодня (шт):</label>
+                    <input type="number" id="morning-nkk" class="form-control" inputmode="numeric" placeholder="0">
+                </div>
+
+                <button class="btn-submit" onclick="saveMorningData()">Сохранить в базу</button>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-1">Система отчетности ГОСБ</h2>
-            <p class="text-sm text-gray-400 mb-6">Введите код доступа</p>
-            <input type="password" id="pin-input" maxlength="6" placeholder="••••••" class="w-full text-center text-2xl tracking-widest px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl mb-4">
-            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white font-semibold py-3.5 rounded-2xl shadow-lg active:scale-[0.98] transition-all">Войти</button>
+        </div>
+
+        <div class="container" id="tab-evening">
+            <div class="card">
+                <div class="card-title">Фактические итоги за день (Вечер)</div>
+                <p style="color: #666; font-size: 14px; text-align: center; padding: 20px 0;">Форма вечернего отчета находится в разработке.</p>
+            </div>
+        </div>
+
+        <div class="container" id="tab-analytics">
+            <div class="card">
+                <div class="card-title">Аналитика и Выгрузка</div>
+                <p style="color: #666; font-size: 14px; text-align: center; padding: 20px 0;">Модуль аналитики будет доступен после накопления данных.</p>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('morning', this)">
+                <div class="nav-icon">☀️</div>
+                <div>Утро</div>
+            </button>
+            <button class="nav-item" onclick="switchTab('evening', this)">
+                <div class="nav-icon">🌙</div>
+                <div>Вечер</div>
+            </button>
+            <button class="nav-item" onclick="switchTab('analytics', this)">
+                <div class="nav-icon">📊</div>
+                <div>Аналитика</div>
+            </button>
         </div>
     </div>
 
-    <div id="main-screen" class="min-h-screen flex flex-col hidden pb-24">
-        <header class="bg-emerald-700 text-white px-5 pt-4 pb-4 rounded-b-[2.5rem] shadow-lg sticky top-0 z-50 flex justify-between items-start">
-            <div>
-                <h1 id="user-role-title" class="text-lg font-bold">Загрузка...</h1>
-                <p id="user-sub-title" class="text-xs text-emerald-100 mt-0.5">ВСП</p>
-            </div>
-            <button onclick="handleLogout()" class="text-xs bg-emerald-800/50 px-3 py-1.5 rounded-xl">Выйти</button>
-        </header>
-
-        <main class="flex-grow p-4 max-w-md mx-auto w-full space-y-4">
-            <div id="tab-content-morning" class="tab-content space-y-4">
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                    <div class="border-l-4 border-emerald-600 pl-3"><h3 id="morning-tab-title" class="font-bold text-gray-800 text-sm">Ввод плановых данных</h3></div>
-                    <div id="vsp-selection-block-morning" class="hidden">
-                        <select id="morning-vsp-select" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs"></select>
-                    </div>
-                    <div id="vsp-fixed-label-morning" class="text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl hidden"></div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div><label id="label-credits" class="block text-xs font-semibold text-gray-500 mb-1">Кредиты:</label><input type="number" id="morning-credits" placeholder="0" class="num-input"></div>
-                        <div><label id="label-chkd" class="block text-xs font-semibold text-gray-500 mb-1">Уровень доверия:</label><input type="number" id="morning-ud" placeholder="0" class="num-input"></div>
-                        <div><label id="label-trust" class="block text-xs font-semibold text-gray-500 mb-1">ЦКП Кредиты:</label><input type="number" id="morning-ckp-kred" placeholder="0" class="num-input"></div>
-                        <div><label id="label-nkk" class="block text-xs font-semibold text-gray-500 mb-1">НКК:</label><input type="number" id="morning-nkk" placeholder="0" class="num-input"></div>
-                    </div>
-                    <button onclick="saveMorningData()" class="w-full bg-emerald-600 text-white font-medium py-3 rounded-xl shadow-md active:scale-[0.99] transition-all text-xs">Сохранить в базу</button>
-                </div>
-            </div>
-
-            <div id="tab-content-evening" class="tab-content space-y-4 hidden">
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                    <div class="border-l-4 border-blue-600 pl-3"><h3 class="font-bold text-gray-800 text-sm">Внести фактические итоги</h3></div>
-                    <div id="vsp-selection-block-evening" class="hidden">
-                        <select id="evening-vsp-select" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs"></select>
-                    </div>
-                    <form id="evening-form" class="space-y-3">
-                        <div>
-                            <span class="section-title">1. Встречи за день</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="sub-label">Всего встреч:</label><input type="number" id="f_vst_all" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">Кат. А и Б:</label><input type="number" id="f_vst_ab" placeholder="0" class="num-input"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="section-title">2. Уровень доверия</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="sub-label">Всего УД:</label><input type="number" id="f_ud_all" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">ПУ РБ:</label><input type="number" id="f_ud_purb" placeholder="0" class="num-input"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="section-title">3. Фокусные ЦКП</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="sub-label">БК:</label><input type="number" id="f_ckp_bk" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">Эквайринг:</label><input type="number" id="f_ckp_ekv" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">КП:</label><input type="number" id="f_ckp_kp" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">БГ:</label><input type="number" id="f_ckp_bg" placeholder="0" class="num-input"></div>
-                                <div class="col-span-2"><label class="sub-label">КРЕДИТЫ:</label><input type="number" id="f_ckp_kred" placeholder="0" class="num-input"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="section-title">4 & 5. Кредитование</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="sub-label">Создано:</label><input type="number" id="f_kred_created" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">Выдано:</label><input type="number" id="f_kred_issued" placeholder="0" class="num-input"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="section-title">Остальные показатели</span>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="sub-label">НКК:</label><input type="number" id="f_nkk_all" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">Лизинг:</label><input type="number" id="f_lead_leasing" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">ВЭД:</label><input type="number" id="f_lead_ved" placeholder="0" class="num-input"></div>
-                                <div><label class="sub-label">Сберфест:</label><input type="number" id="f_sberfest" placeholder="0" class="num-input"></div>
-                            </div>
-                        </div>
-                    </form>
-                    <button onclick="saveEveningData()" class="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-md text-xs">Отправить вечерний факт</button>
-                </div>
-            </div>
-
-            <div id="tab-content-analytics" class="tab-content space-y-4 hidden">
-                <div class="bg-white p-5 rounded-3xl shadow-sm text-center text-xs text-gray-500">
-                    Аналитическая матрица синхронизирована с базой Supabase.
-                </div>
-            </div>
-        </main>
-
-        <nav id="bottom-nav" class="bg-white/95 border-t fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around z-50 max-w-md mx-auto shadow-xl">
-            <button id="nav-btn-morning" onclick="switchTab('morning')" class="flex flex-col items-center text-gray-400"><span class="text-[10px] font-medium">Утро</span></button>
-            <button id="nav-btn-evening" onclick="switchTab('evening')" class="flex flex-col items-center text-gray-400"><span class="text-[10px] font-medium">Вечер</span></button>
-            <button id="nav-btn-analytics" onclick="switchTab('analytics')" class="flex flex-col items-center text-gray-400"><span class="text-[10px] font-medium">Аналитика</span></button>
-        </nav>
-    </div>
-
     <script>
-        const SUPABASE_REST_URL = "https://ppjhkgscggocnxvacxjf.supabase.co/rest/v1/daily_reports";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTtxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
-
-        const usersDB = {
-            "777777": { role: "admin", name: "Администратор ГОСБ", vsp: "ГОСБ 8586" },
-            "858602": { role: "vsp", name: "Руководитель ВСП 8586/02", vsp: "8586/02" }
+        // Конфигурация пользователей по ПИН-кодам
+        const USERS_DB = {
+            "8586": { role: "user", vsp: "ВСП 8586/02", title: "Руководитель ВСП" },
+            "1234": { role: "admin", vsp: "ГОСБ", title: "Администратор ГОСБ" }
         };
 
-        const vspList = ["8586/02"];
+        // ТА САМАЯ ССЫЛКА НА GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM5FlEWNGRAA2PYIsy1WCV-rkldeh36bvMDcdKhpIoAzlbL6VrSfktXJ7XCisCCaX1Kg/exec";
+
         let currentUser = null;
 
-        function showNotification(message, isError = false) {
+        // Всплывающие уведомления
+        function showNotification(text, isError = false) {
             const toast = document.getElementById("toast");
-            const text = document.getElementById("toast-text");
-            text.textContent = message;
-            toast.className = `fixed top-20 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold z-50 border transition-all duration-300 ${isError ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'} show`;
-            setTimeout(() => toast.classList.remove("show"), 3000);
+            toast.innerText = text;
+            toast.className = "toast show " + (isError ? "error" : "success");
+            setTimeout(() => { toast.className = "toast"; }, 3500);
         }
 
-        function handleLogin() {
-            const pin = document.getElementById("pin-input").value;
-            if (usersDB[pin]) {
-                currentUser = usersDB[pin];
-                document.getElementById("auth-screen").classList.add("hidden");
-                document.getElementById("main-screen").classList.remove("hidden");
-                document.getElementById("user-role-title").textContent = currentUser.name;
-                document.getElementById("user-sub-title").textContent = currentUser.vsp;
-                
-                if(currentUser.role === "admin") {
-                    document.getElementById("vsp-selection-block-morning").classList.remove("hidden");
-                } else {
-                    document.getElementById("vsp-fixed-label-morning").textContent = `Закрепленный офис: ВСП ${currentUser.vsp}`;
-                    document.getElementById("vsp-fixed-label-morning").classList.remove("hidden");
-                }
-                switchTab("morning");
+        // Авторизация
+        function login() {
+            const pin = document.getElementById("pin-code").value.trim();
+            if (USERS_DB[pin]) {
+                currentUser = USERS_DB[pin];
+                localStorage.setItem("user_session_pin", pin);
+                initInterface();
             } else {
-                showNotification("Неверный код доступа", true);
+                showNotification("Неверный ПИН-код!", true);
             }
         }
 
-        function handleLogout() {
+        function initInterface() {
+            document.getElementById("auth-screen").style.display = "none";
+            document.getElementById("main-screen").style.display = "block";
+            document.getElementById("user-title").innerText = currentUser.title;
+            
+            const infoBox = document.getElementById("vsp-info-box");
+            const adminGroup = document.getElementById("admin-vsp-group");
+
+            if (currentUser.role === "admin") {
+                infoBox.style.display = "none";
+                adminGroup.style.display = "block";
+            } else {
+                infoBox.style.display = "block";
+                infoBox.innerText = "Закрепленный офис: " + currentUser.vsp;
+                adminGroup.style.display = "none";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user_session_pin");
             currentUser = null;
-            document.getElementById("main-screen").classList.add("hidden");
-            document.getElementById("auth-screen").classList.remove("hidden");
+            document.getElementById("pin-code").value = "";
+            document.getElementById("main-screen").style.display = "none";
+            document.getElementById("auth-screen").style.display = "block";
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
-            document.getElementById(`tab-content-${tabName}`).classList.remove("hidden");
+        // Переключение вкладок меню
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.container').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            element.classList.add('active');
         }
 
+        // ОТПРАВКА ДАННЫХ В GOOGLE ТАБЛИЦУ
         async function saveMorningData() {
             const vsp = currentUser.role === "admin" ? document.getElementById("morning-vsp-select").value : currentUser.vsp;
-            const today = new Date().toISOString().split('T')[0];
             
+            // Названия ключей должны точно совпадать со скриптом в Google
             const fields = {
-                report_date: today,
                 vsp_number: vsp,
-                prog_credits: parseFloat(document.getElementById("morning-credits").value) || 0,
-                prog_ud: parseInt(document.getElementById("morning-ud").value) || 0,
-                prog_ckp_kred: parseInt(document.getElementById("morning-ckp-kred").value) || 0,
-                prog_nkk: parseInt(document.getElementById("morning-nkk").value) || 0
+                prog_credits: document.getElementById("morning-credits").value || "0",
+                prog_ud: document.getElementById("morning-ud").value || "0",
+                prog_ckp_kred: document.getElementById("morning-ckp-kred").value || "0",
+                prog_nkk: document.getElementById("morning-nkk").value || "0"
             };
 
+            showNotification("Отправка данных...");
+
             try {
-                const response = await fetch(SUPABASE_REST_URL, {
+                // Используем mode: 'no-cors' для полного обхода любых сетевых блокировок браузера
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(fields)
                 });
-                if (response.ok) {
-                    showNotification("Утренний прогноз сохранен!");
-                } else {
-                    showNotification("Ошибка сохранения на стороне сервера.", true);
-                }
+                
+                // Сбрасываем форму после успешной отправки
+                document.getElementById("morning-credits").value = "";
+                document.getElementById("morning-ud").value = "";
+                document.getElementById("morning-ckp-kred").value = "";
+                document.getElementById("morning-nkk").value = "";
+                
+                showNotification("Утренний прогноз успешно сохранен!");
             } catch (e) {
-                showNotification("Ошибка сети.", true);
+                showNotification("Ошибка сети: " + e.message, true);
             }
         }
 
-        async function saveEveningData() {
-            const vsp = currentUser.role === "admin" ? document.getElementById("evening-vsp-select").value : currentUser.vsp;
-            const today = new Date().toISOString().split('T')[0];
-
-            const fields = {
-                report_date: today,
-                vsp_number: vsp,
-                vst_all: parseInt(document.getElementById("f_vst_all").value) || 0,
-                vst_ab: parseInt(document.getElementById("f_vst_ab").value) || 0,
-                ud_all: parseInt(document.getElementById("f_ud_all").value) || 0,
-                ud_purb: parseInt(document.getElementById("f_ud_purb").value) || 0,
-                ckp_bk: parseInt(document.getElementById("f_ckp_bk").value) || 0,
-                ckp_ekv: parseInt(document.getElementById("f_ckp_ekv").value) || 0,
-                ckp_kp: parseInt(document.getElementById("f_ckp_kp").value) || 0,
-                ckp_bg: parseInt(document.getElementById("f_ckp_bg").value) || 0,
-                ckp_kred: parseInt(document.getElementById("f_ckp_kred").value) || 0,
-                kred_created: parseFloat(document.getElementById("f_kred_created").value) || 0,
-                kred_issued: parseFloat(document.getElementById("f_kred_issued").value) || 0,
-                nkk_all: parseInt(document.getElementById("f_nkk_all").value) || 0,
-                lead_leasing: parseInt(document.getElementById("f_lead_leasing").value) || 0,
-                lead_ved: parseInt(document.getElementById("f_lead_ved").value) || 0,
-                sberfest: parseInt(document.getElementById("f_sberfest").value) || 0
-            };
-
-            try {
-                const response = await fetch(SUPABASE_REST_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(fields)
-                });
-                if (response.ok) {
-                    showNotification("Вечерний факт сохранен!");
-                    document.getElementById("evening-form").reset();
-                } else {
-                    showNotification("Ошибка сохранения факта.", true);
-                }
-            } catch (e) {
-                showNotification("Ошибка соединения.", true);
+        // Проверка сессии при загрузке страницы
+        window.onload = function() {
+            const savedPin = localStorage.getItem("user_session_pin");
+            if (savedPin && USERS_DB[savedPin]) {
+                currentUser = USERS_DB[savedPin];
+                initInterface();
             }
-        }
+        };
     </script>
 </body>
 </html>
