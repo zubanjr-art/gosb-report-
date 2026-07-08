@@ -11,10 +11,23 @@
         .section-title { @apply text-xs font-bold text-emerald-700 bg-emerald-50/50 p-2 rounded-lg mb-2 mt-3 block; }
         .sub-label { @apply block text-[11px] font-medium text-gray-500 mb-1 pl-1; }
         .num-input { @apply w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all focus:bg-white; }
+        
+        /* Стили для кастомных уведомлений */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased selection:bg-emerald-500 selection:text-white">
 
+    <!-- КАСГОМНЫЕ ТОСТЫ (ВМЕСТО ALERT) -->
+    <div id="toast" class="flex items-center space-x-2 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold max-w-xs w-full">
+        <span id="toast-text"></span>
+    </div>
+
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-screen" class="min-h-screen flex items-center justify-center px-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-sm w-full text-center">
             <div class="mx-auto w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
@@ -37,7 +50,9 @@
         </div>
     </div>
 
+    <!-- ГЛАВНЫЙ ЭКРАН ПРИЛОЖЕНИЯ -->
     <div id="main-screen" class="min-h-screen flex flex-col hidden pb-24">
+        <!-- Шапка -->
         <header class="bg-emerald-700 text-white px-5 pt-4 pb-4 rounded-b-[2.5rem] shadow-lg sticky top-0 z-50">
             <div class="flex justify-between items-start">
                 <div>
@@ -50,8 +65,10 @@
             </div>
         </header>
 
+        <!-- Основной контент -->
         <main class="flex-grow p-4 max-w-md mx-auto w-full space-y-4">
             
+            <!-- ВКЛАДКА: УТРО (Прогнозы / Планы для админа) -->
             <div id="tab-content-morning" class="tab-content space-y-4">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
                     <div class="border-l-4 border-emerald-600 pl-3">
@@ -89,6 +106,7 @@
                 </div>
             </div>
 
+            <!-- ВКЛАДКА: ВЕЧЕР (Факты за день) -->
             <div id="tab-content-evening" class="tab-content space-y-4 hidden">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
                     <div class="border-l-4 border-blue-600 pl-3">
@@ -169,11 +187,12 @@
                 </div>
             </div>
 
+            <!-- ВКЛАДКА: АНАЛИТИКА / ДАШБОРД -->
             <div id="tab-content-analytics" class="tab-content space-y-4 hidden">
                 <div id="admin-export-block" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 p-4 rounded-3xl shadow-sm text-white space-y-2">
                     <p class="text-xs font-bold">Панель администратора</p>
                     <button onclick="exportToExcel()" class="w-full bg-white text-orange-600 font-bold py-2.5 rounded-xl shadow text-xs flex items-center justify-center space-x-2 active:scale-[0.99] transition-all">
-                        <span>Выгрузить матрицу в Excel (Красивый вид)</span>
+                        <span>Выгрузить матрицу в Excel (CSV вид)</span>
                     </button>
                 </div>
 
@@ -216,6 +235,7 @@
 
         </main>
 
+        <!-- Навигационное меню -->
         <nav id="bottom-nav" class="bg-white/95 backdrop-blur border-t border-gray-200 fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around px-2 z-50 max-w-md mx-auto shadow-xl">
             <button id="nav-btn-morning" onclick="switchTab('morning')" class="flex flex-col items-center space-y-0.5 text-gray-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 11H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -233,7 +253,8 @@
     </div>
 
     <script>
-        const SUPABASE_REST_URL = "https://ppjhkgscgocnxvacxjf.supabase.co/rest/v1/daily_reports";
+        // АКТУАЛЬНЫЕ НАСТРОЙКИ НОВОГО ПРОЕКТА SUPABASE
+        const SUPABASE_REST_URL = "https://ppjhkgscggocnxvacxjf.supabase.co/rest/v1/daily_reports";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwamhrZ3NjZ29jbnh2YWN4amYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTtxNjg4NDA5MCwiZXhwIjoyMDMyNDU5NjkwfQ.z-Z8A8nAnW6hF2-XgT-1G09K609Zf_V_M3I3v-F8v1Y";
 
         const usersDB = {
@@ -257,7 +278,23 @@
         let rawCachedData = [];
         let selectedVspSet = new Set(vspList);
 
-        // Инициализация списков
+        // Функция кастомных тост-уведомлений
+        function showNotification(message, type = 'success') {
+            const toast = document.getElementById("toast");
+            const text = document.getElementById("toast-text");
+            text.textContent = message;
+            
+            if (type === 'error') {
+                toast.className = "flex items-center space-x-2 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold max-w-xs w-full bg-red-50 border-red-200 text-red-700";
+            } else {
+                toast.className = "flex items-center space-x-2 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold max-w-xs w-full bg-emerald-50 border-emerald-200 text-emerald-700";
+            }
+            
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3500);
+        }
+
+        // Рендеринг выпадающих списков ВСП
         ["morning-vsp-select", "evening-vsp-select"].forEach(id => {
             const el = document.getElementById(id);
             vspList.forEach(vsp => {
@@ -351,8 +388,7 @@
         async function checkExistingReport(vsp, date) {
             try {
                 const response = await fetch(`${SUPABASE_REST_URL}?vsp_number=eq.${encodeURIComponent(vsp)}&report_date=eq.${date}`, {
-                    method: 'GET',
-                    mode: 'cors',
+                    method: 'GET', mode: 'cors',
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
                 if (!response.ok) return null;
@@ -391,9 +427,15 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify(fields)
                 });
-                if (response.ok) { alert("Утренние/Плановые данные внесены!"); loadAnalytics(); } 
-                else { alert("Ошибка сервера базы данных."); }
-            } catch (e) { alert("Ошибка сети."); }
+                if (response.ok) { 
+                    showNotification("Данные успешно зафиксированы в системе!"); 
+                    loadAnalytics(); 
+                } else { 
+                    showNotification("Ошибка сервера при записи утренних данных.", "error"); 
+                }
+            } catch (e) { 
+                showNotification("Ошибка сети. Проверьте соединение или отключите RLS.", "error"); 
+            }
         }
 
         async function saveEveningData() {
@@ -441,9 +483,16 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify(fields)
                 });
-                if (response.ok) { alert("Вечерние итоги приняты базой!"); document.getElementById("evening-form").reset(); loadAnalytics(); } 
-                else { alert("Ошибка при сохранении."); }
-            } catch (e) { alert("Ошибка сети."); }
+                if (response.ok) { 
+                    showNotification("Вечерний факт успешно отправлен в базу!"); 
+                    document.getElementById("evening-form").reset(); 
+                    loadAnalytics(); 
+                } else { 
+                    showNotification("Ошибка сервера при фиксации факта дня.", "error"); 
+                }
+            } catch (e) { 
+                showNotification("Ошибка сети. Сервер недоступен.", "error"); 
+            }
         }
 
         async function loadAnalytics() {
@@ -460,7 +509,7 @@
                 rawCachedData = await response.json();
                 renderLeaderboard();
             } catch (err) { 
-                container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Ошибка загрузки. Обновите вкладку.</p>`; 
+                container.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Ошибка сети или проекта Supabase. Обновите страницу.</p>`; 
             }
         }
 
@@ -487,7 +536,6 @@
             let totalFactToday = 0; let totalProgToday = 0; let totalFactWeek = 0; let totalPlanWeek = 0;
             const todayStr = getTodayDate();
 
-            // Маппинг ключей под 4 ключевых сквозных дашборда
             const dbMap = {
                 kred: { fact: 'kred_issued', prog: 'prog_credits', plan: 'plan_credits', unit: 'тыс руб' },
                 ud: { fact: 'ud_all', prog: 'prog_ud', plan: 'plan_ud', unit: 'шт' },
@@ -586,20 +634,18 @@
         }
 
         function exportToExcel() {
-            if (rawCachedData.length === 0) { alert("Сначала обновите аналитику."); return; }
+            if (rawCachedData.length === 0) { showNotification("Матрица данных пуста. Нечего выгружать.", "error"); return; }
             
-            // Названия колонок для красивого отображения в Excel
             const headers = [
                 "Дата", "Номер ВСП", "Встречи Всего (шт)", "Встречи Кат А и Б (шт)", 
                 "Уровень Доверия Всего (шт)", "Уровень Доверия ПУ РБ (шт)",
                 "ЦКП БК (шт)", "ЦКП Эквайринг (шт)", "ЦКП КП (шт)", "ЦКП БГ (шт)", "ЦКП Кредиты (шт)", 
                 "Кредиты Создано (тыс руб)", "Кредиты Выдано (тыс руб)", "НКК Всего (шт)", 
                 "Лид на Лизинг (шт)", "Лид на ВЭД (шт)", "Сберфест Регистрации (шт)",
-                "НКД Благо (тыс руб)", "НКД Аккредитив (тыс руб)", "НКД ЭКО (тыс руб)", "НКД БГ (тыс руб)", "НКД Прочие (тыс руб)",
-                "МКК Разнулившиеся Кредиты", "МКК Разнулившиеся ЗП", "МКК Разнулившиеся Экв", "МКК Разнулившиеся БГ", "МКК Разнулившиеся БК"
+                "НКД План/Факт Благо", "НКД Аккредитив", "НКД ЭКО", "НКД БГ", "НКД Прочие",
+                "МКК Кредиты", "МКК ЗП", "МКК Экв", "МКК БГ", "МКК БК"
             ];
             
-            // Формируем красивый CSV файл, понятный русскому Excel (разделитель - точка с запятой)
             let csvRows = [headers.join(";")];
 
             rawCachedData.forEach(r => {
@@ -610,11 +656,9 @@
                     r.nkd_blago || 0, r.nkd_akkred || 0, r.nkd_eko || 0, r.nkd_bg || 0, r.nkd_other || 0,
                     r.mkk_kred || 0, r.mkk_zp || 0, r.mkk_ekv || 0, r.mkk_bg || 0, r.mkk_bk || 0
                 ];
-                // Заменяем внутренние переносы, чтобы структура не плыла
                 csvRows.push(values.map(v => String(v).replace(/;/g, ",")).join(";"));
             });
 
-            // \uFEFF сообщает Excel, что кодировка файла - UTF-8, чтобы русские буквы не превращались в иероглифы
             const csvContent = "\uFEFF" + csvRows.join("\r\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -624,6 +668,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showNotification("Выгрузка успешно сгенерирована!");
         }
     </script>
 </body>
