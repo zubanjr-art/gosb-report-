@@ -49,11 +49,10 @@
 
         <div class="container" id="tab-morning">
             <div class="card">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">☀️ Утренний прогноз по ключевым показателям</div>
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">☀️ Утренний прогноз активности и объемов</div>
                 <div class="scroll-box">
-                    <div class="block-title">Активность и ЦКП</div>
+                    <div class="block-title">Активность</div>
                     <div class="form-group"><label>Прогноз Встреч всего (шт):</label><input type="number" id="m-vst_all" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Прогноз КРЕД ЦКП (шт):</label><input type="number" id="m-ckp_kred" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>Прогноз Уровень Доверия (шт):</label><input type="number" id="m-ud_all" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>Прогноз НКК (в штуках):</label><input type="number" id="m-nkk_all" class="form-control" placeholder="0"></div>
                     
@@ -234,12 +233,12 @@
             "8512": { role: "user", tp: "ВСП 8586/12", title: "Руководитель ВСП 8586/12" },
             "8513": { role: "user", tp: "ВСП 8586/13", title: "Руководитель ВСП 8586/13" },
             "8514": { role: "user", tp: "ВСП 8586/14", title: "Руководитель ВСП 8586/14" },
-            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор Иркутного ГОСБ 8586" }
+            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор Иркутского ГОСБ 8586" }
         };
 
         const ALL_VSPS = Object.values(USERS_DB).filter(u => u.role === "user").map(u => u.tp).sort();
         
-        // ======= ТУТ ТАКЖЕ НЕ ЗАБУДЬТЕ СВОЙ URL ПОСЛЕ «НОВОГО РАЗВЕРТЫВАНИЯ»! =======
+        // ======= СЮДА ВСТАВЬТЕ ВАШ URL ПОСЛЕ «НОВОГО РАЗВЕРТЫВАНИЯ»! =======
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywKKauCFtqrIviX3figd-A1E27bQrcY3rQLhjhHeGLLq8QtLrvWAnUB1KEfsU6oz7t8w/exec"; 
 
         let currentUser = null;
@@ -384,9 +383,10 @@
         }
 
         function sendMorning() {
+            // В скрипт улетает 0 по ЦКП автоматически, чтобы не ломать структуру колонок таблицы
             let params = `action=saveReport&vsp_number=${encodeURIComponent(currentUser.tp)}&report_type=Утро` +
                          `&vst_all=${document.getElementById("m-vst_all").value || 0}` +
-                         `&ckp_kred=${document.getElementById("m-ckp_kred").value || 0}` +
+                         `&ckp_kred=0` + 
                          `&ud_all=${document.getElementById("m-ud_all").value || 0}` +
                          `&nkk_all=${document.getElementById("m-nkk_all").value || 0}` +
                          `&kred_issued=${document.getElementById("m-kred_issued").value || 0}` +
