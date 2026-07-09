@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Иркутское отделение 8586</title>
+    <title>Мониторинг ЦКП</title>
     <style>
-        :root { --primary: #00796b; --primary-light: #e0f2f1; --bg: #f4f6f8; }
+        :root { --primary: #388e3c; --primary-light: #e8f5e9; --bg: #f5f5f5; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background: var(--bg); color: #333; padding-bottom: 80px; }
-        .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
-        .logout-btn { background: rgba(255,255,255,0.2); border: none; padding: 6px 12px; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .auth-container { max-width: 400px; margin: 40px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-        .pin-input { width: 100%; padding: 12px; font-size: 20px; text-align: center; letter-spacing: 5px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 12px; }
-        .container { max-width: 600px; margin: 12px auto; padding: 0 8px; display: none; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 12px; }
-        .scroll-box { max-height: 65vh; overflow-y: auto; padding-right: 4px; }
-        .block-title { font-size: 13px; font-weight: bold; color: var(--primary); margin: 14px 0 6px 0; border-bottom: 1px solid #eee; padding-bottom: 2px; text-transform: uppercase; }
-        .form-group { margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .form-group label { font-size: 12px; color: #444; flex: 2; text-align: left; }
-        .form-control { width: 95px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; text-align: center; }
-        select.form-control { width: 100%; text-align: left; }
-        .btn-submit { width: 100%; background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .summary-box { background: #f8f9fa; border: 1px solid #eee; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 12px; font-size: 13px; }
-        .tp-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px; border: 1px solid #eee; font-size: 12px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #777; background: none; border: none; font-size: 11px; cursor: pointer; width: 25%; height: 100%; justify-content: center; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .toast { position: fixed; top: 15px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #222; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; transition: 0.3s; z-index: 2000; }
+        .header { background: #00796b; color: white; padding: 20px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+        .logout-btn { background: rgba(255,255,255,0.2); border: none; padding: 6px 16px; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .auth-container { max-width: 400px; margin: 60px auto; padding: 30px 20px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .pin-input { width: 100%; padding: 15px; font-size: 24px; text-align: center; letter-spacing: 8px; border: 2px solid #e0e0e0; border-radius: 12px; margin-bottom: 20px; background: #fafafa; }
+        .container { max-width: 500px; margin: 15px auto; padding: 0 12px; display: none; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); margin-bottom: 15px; }
+        .metric-tabs { display: flex; background: #e0e0e0; padding: 4px; border-radius: 12px; margin-bottom: 15px; justify-content: space-between; }
+        .metric-tab { flex: 1; padding: 8px; text-align: center; background: none; border: none; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-radius: 8px; }
+        .metric-tab.active { background: white; color: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .block-title { font-size: 14px; font-weight: bold; color: #ef6c00; margin-bottom: 12px; text-transform: uppercase; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; text-align: left; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; }
+        select.form-control { background: #fff; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .summary-flex { display: flex; gap: 10px; margin-bottom: 15px; }
+        .summary-card { flex: 1; background: #fafafa; border: 1px solid #eee; padding: 12px; border-radius: 12px; text-align: center; }
+        .tp-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #fafafa; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: white; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #999; background: none; border: none; font-size: 12px; cursor: pointer; width: 25%; }
+        .nav-item.active { color: #00796b; font-weight: bold; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #333; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; transition: 0.3s; z-index: 2000; }
         .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
@@ -35,174 +38,82 @@
     <div id="toast" class="toast"></div>
 
     <div id="auth-screen" class="auth-container">
-        <h2 style="color: #2e7d32; margin-bottom: 8px; font-size: 22px;">Иркутское отделение 8586</h2>
-        <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Введите PIN-код вашей точки продаж</p>
+        <h2 style="color: var(--primary); margin-bottom: 10px; font-size: 24px;">Мониторинг ЦКП</h2>
+        <p style="font-size: 14px; color: #666; margin-bottom: 25px;">Введите ПИН-код вашей точки продаж</p>
         <input type="password" id="pin-code" class="pin-input" inputmode="numeric" placeholder="••••" maxlength="4">
         <button class="btn-submit" onclick="login()">Войти в систему</button>
     </div>
 
     <div id="main-screen" style="display: none;">
         <div class="header">
-            <h1 id="user-title" style="font-size: 14px;">Загрузка...</h1>
+            <div>
+                <h1 id="user-title" style="font-size: 16px;">Загрузка...</h1>
+                <span id="user-vsp" style="font-size: 12px; opacity: 0.8;"></span>
+            </div>
             <button class="logout-btn" onclick="logout()">Выйти</button>
         </div>
 
         <div class="container" id="tab-morning">
             <div class="card">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">☀️ Утренний прогноз по ключевым ЦКП</div>
-                <div style="background: var(--primary-light); padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 12px; color: var(--primary);" id="morning-plans-badge">
-                    Синхронизация лимитов...
-                </div>
-                <div class="form-group"><label>Прогноз Встреч всего (шт):</label><input type="number" id="m-vst_all" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз КРЕД ЦКП (шт):</label><input type="number" id="m-ckp_kred" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз Уровень Доверия (шт):</label><input type="number" id="m-ud_all" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз НКК (шт):</label><input type="number" id="m-nkk_all" class="form-control" placeholder="0"></div>
-                <button class="btn-submit" onclick="sendMorning()">Сохранить прогноз</button>
+                <div class="block-title" style="color: var(--primary);">☀️ Утренний прогноз по ЦКП</div>
+                <div class="form-group"><label>Прогноз Кредиты (тыс. руб):</label><input type="number" id="m-kred" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Прогноз ЧКД (шт):</label><input type="number" id="m-chkd" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Прогноз Доверие (шт):</label><input type="number" id="m-doverie" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Прогноз НКК (шт):</label><input type="number" id="m-nkk" class="form-control" placeholder="0"></div>
+                <button class="btn-submit" onclick="sendData('Утро')">Сохранить прогноз</button>
             </div>
         </div>
 
         <div class="container" id="tab-evening">
             <div class="card">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">🌙 Фактические итоги дня ВСП</div>
-                <div class="scroll-box">
-                    <div class="block-title">1. Встречи</div>
-                    <div class="form-group"><label>Сколько Встреч всего проведено за день:</label><input type="number" id="e-vst_all" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>В том числе категории А и Б:</label><input type="number" id="e-vst_ab" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">2. Уровень доверия</div>
-                    <div class="form-group"><label>Уровень доверия количество штук:</label><input type="number" id="e-ud_all" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>в т.ч. Пакет услуг розничный бизнес (ПУ РБ):</label><input type="number" id="e-ud_purb" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">3. Фокусные ЦКП</div>
-                    <div class="form-group"><label>БК штук:</label><input type="number" id="e-ckp_bk" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Экв штук:</label><input type="number" id="e-ckp_ekv" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>КП штук:</label><input type="number" id="e-ckp_kp" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БГ штук:</label><input type="number" id="e-ckp_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>КРЕД штук:</label><input type="number" id="e-ckp_kred" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">4 - 6. Кредиты и НКК</div>
-                    <div class="form-group"><label>4. Кредиты создано в тыс рублей:</label><input type="number" id="e-kred_created" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>5. Кредиты выдано в тыс рублей:</label><input type="number" id="e-kred_issued" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>6. НКК штук:</label><input type="number" id="e-nkk_all" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">7. НКД (в тыс рублей)</div>
-                    <div class="form-group"><label>Благо:</label><input type="number" id="e-nkd_blago" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Аккредитив:</label><input type="number" id="e-nkd_akkred" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ЭКО:</label><input type="number" id="e-nkd_eco" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БГ:</label><input type="number" id="e-nkd_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ПРОЧИЕ:</label><input type="number" id="e-nkd_other" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">8 - 10. Лиды и Фестивали</div>
-                    <div class="form-group"><label>8. Лид на лизинг штук:</label><input type="number" id="e-lead_leasing" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>9. Лид на ВЭД штук:</label><input type="number" id="e-lead_ved" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>10. Сберфест (кол-во регистраций):</label><input type="number" id="e-sberfest" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">11. МКК разнулившихся нарастающим за июль</div>
-                    <div class="form-group"><label>Кредиты количество:</label><input type="number" id="e-mkk_kred" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ЗП количество:</label><input type="number" id="e-mkk_zp" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Экв количество:</label><input type="number" id="e-mkk_ekv" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БГ количество:</label><input type="number" id="e-mkk_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БК количество:</label><input type="number" id="e-mkk_bk" class="form-control" placeholder="0"></div>
-                </div>
-                <button class="btn-submit" style="background: #1565c0;" onclick="sendEvening()">Отправить итоги дня</button>
+                <div class="block-title" style="color: #1565c0;">🌙 Фактические итоги дня ВСП</div>
+                <div class="form-group"><label>Факт Кредиты (тыс. руб):</label><input type="number" id="e-kred" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Факт ЧКД (шт):</label><input type="number" id="e-chkd" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Факт Доверие (шт):</label><input type="number" id="e-doverie" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>Факт НКК (шт):</label><input type="number" id="e-nkk" class="form-control" placeholder="0"></div>
+                <button class="btn-submit" style="background: #1565c0;" onclick="sendData('Вечер')">Отправить итоги дня</button>
             </div>
         </div>
 
         <div class="container" id="tab-admin">
             <div class="card">
-                <div style="font-weight: bold; color: #ef6c00; margin-bottom: 10px; font-size: 14px;">⚙️ Распределение планов по всем показателям</div>
+                <div class="block-title">⚙️ Установка недельных планов</div>
                 <div class="form-group">
-                    <label>Выберите офис ВСП:</label>
-                    <select id="adm-tp-select" class="form-control" style="width: 150px; text-align: left;"></select>
+                    <label>Выберите ВСП:</label>
+                    <select id="adm-tp-select" class="form-control"></select>
                 </div>
-                
-                <div class="scroll-box" style="max-height: 50vh;">
-                    <div class="block-title">Планы: Встречи и Доверие</div>
-                    <div class="form-group"><label>Встречи всего:</label><input type="number" id="p-vst_all" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Встречи А и Б:</label><input type="number" id="p-vst_ab" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Уровень доверия (шт):</label><input type="number" id="p-ud_all" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ПУ РБ (шт):</label><input type="number" id="p-ud_purb" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">Планы: Фокусные ЦКП</div>
-                    <div class="form-group"><label>БК (шт):</label><input type="number" id="p-ckp_bk" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Экв (шт):</label><input type="number" id="p-ckp_ekv" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>КП (шт):</label><input type="number" id="p-ckp_kp" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БГ (шт):</label><input type="number" id="p-ckp_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>КРЕД (шт):</label><input type="number" id="p-ckp_kred" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">Планы: Объемы и НКК</div>
-                    <div class="form-group"><label>Кредиты создано (тыс):</label><input type="number" id="p-kred_created" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Кредиты выдано (тыс):</label><input type="number" id="p-kred_issued" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>НКК штук:</label><input type="number" id="p-nkk_all" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">Планы: НКД (тыс. руб)</div>
-                    <div class="form-group"><label>Благо:</label><input type="number" id="p-nkd_blago" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Аккредитив:</label><input type="number" id="p-nkd_akkred" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ЭКО:</label><input type="number" id="p-nkd_eco" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>БГ НКД:</label><input type="number" id="p-nkd_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>ПРОЧИЕ:</label><input type="number" id="p-nkd_other" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">Планы: Лиды и Мероприятия</div>
-                    <div class="form-group"><label>Лид Лизинг:</label><input type="number" id="p-lead_leasing" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Лид ВЭД:</label><input type="number" id="p-lead_ved" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>Сберфест:</label><input type="number" id="p-sberfest" class="form-control" placeholder="0"></div>
-
-                    <div class="block-title">Планы: Разнулившиеся МКК</div>
-                    <div class="form-group"><label>МКК Кредиты:</label><input type="number" id="p-mkk_kred" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>МКК ЗП:</label><input type="number" id="p-mkk_zp" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>МКК Экв:</label><input type="number" id="p-mkk_ekv" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>МКК БГ:</label><input type="number" id="p-mkk_bg" class="form-control" placeholder="0"></div>
-                    <div class="form-group"><label>МКК БК:</label><input type="number" id="p-mkk_bk" class="form-control" placeholder="0"></div>
-                </div>
-                <button class="btn-submit" style="background: #ef6c00;" onclick="sendWeeklyPlan()">Утвердить все показатели</button>
+                <div class="form-group"><label>План Кредиты (тыс руб):</label><input type="number" id="p-kred" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>План ЧКД (шт):</label><input type="number" id="p-chkd" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>План Доверие (шт):</label><input type="number" id="p-doverie" class="form-control" placeholder="0"></div>
+                <div class="form-group"><label>План НКК (шт):</label><input type="number" id="p-nkk" class="form-control" placeholder="0"></div>
+                <button class="btn-submit" style="background: #ef6c00;" onclick="sendWeeklyPlan()">Утвердить план</button>
             </div>
         </div>
 
         <div class="container" id="tab-dashboard">
-            <div class="card" style="padding: 10px; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: bold; color: #555;">Метрика для анализа:</label>
-                <select id="dash-metric-selector" class="form-control" style="width:100%; margin-top:4px;" onchange="updateDashboardMetric()">
-                    <option value="vst_all">1. Встреч всего проведено</option>
-                    <option value="vst_ab">↳ Встречи категории А и Б</option>
-                    <option value="ud_all">2. Уровень доверия (Всего шт)</option>
-                    <option value="ud_purb">↳ В т.ч. ПУ РБ</option>
-                    <option value="ckp_bk">3. Фокусные ЦКП: БК</option>
-                    <option value="ckp_ekv">3. Фокусные ЦКП: Экв</option>
-                    <option value="ckp_kp">3. Фокусные ЦКП: КП</option>
-                    <option value="ckp_bg">3. Фокусные ЦКП: БГ</option>
-                    <option value="ckp_kred">3. Фокусные ЦКП: КРЕД</option>
-                    <option value="kred_created">4. Кредиты создано (тыс.р)</option>
-                    <option value="kred_issued" selected>5. Кредиты выдано (тыс.р)</option>
-                    <option value="nkk_all">6. НКК штук</option>
-                    <option value="nkd_blago">7. НКД: Благо (тыс.р)</option>
-                    <option value="nkd_akkred">7. НКД: Аккредитив (тыс.р)</option>
-                    <option value="nkd_eco">7. НКД: ЭКО (тыс.р)</option>
-                    <option value="nkd_bg">7. НКД: БГ (тыс.р)</option>
-                    <option value="nkd_other">7. НКД: ПРОЧИЕ (тыс.р)</option>
-                    <option value="lead_leasing">8. Лид на лизинг</option>
-                    <option value="lead_ved">9. Лид на ВЭД</option>
-                    <option value="sberfest">10. Сберфест (Регистрации)</option>
-                    <option value="mkk_kred">11. МКК Июль: Кредиты</option>
-                    <option value="mkk_zp">11. МКК Июль: ЗП</option>
-                    <option value="mkk_ekv">11. МКК Июль: Экв</option>
-                    <option value="mkk_bg">11. МКК Июль: БГ</option>
-                    <option value="mkk_bk">11. МКК Июль: БК</option>
-                </select>
+            <div class="metric-tabs">
+                <button class="metric-tab active" id="btn-m-kred" onclick="changeMetric('kred')">Кредиты</button>
+                <button class="metric-tab" id="btn-m-chkd" onclick="changeMetric('chkd')">ЧКД</button>
+                <button class="metric-tab" id="btn-m-doverie" onclick="changeMetric('doverie')">Доверие</button>
+                <button class="metric-tab" id="btn-m-nkk" onclick="changeMetric('nkk')">НКК</button>
             </div>
 
             <div class="card">
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
-                    <span id="selected-count-label">Выбрано: 11 из 11</span>
-                    <span style="color: #1565c0; cursor: pointer; font-weight: bold;" onclick="toggleSelectAll(this)">Снять выделение</span>
-                </div>
-                <div class="summary-box">
-                    <span style="color:#1565c0; font-weight:bold; margin-right:15px; font-size:15px;" id="dash-total-fact">ФАКТ: 0</span>
-                    <span style="color:#7b1fa2; font-weight:bold; font-size:15px;" id="dash-total-prog">ПРОГНОЗ: 0</span>
-                    <div style="margin-top: 6px; font-size: 12px; border-top: 1px solid #eee; padding-top: 4px;">
-                        План недели по выбранным: <strong id="dash-total-plan">0</strong>
+                <div class="summary-flex">
+                    <div class="summary-card">
+                        <div style="font-size:11px; color:#666;">Общая картина (Сегодня)</div>
+                        <div style="font-size:14px; font-weight:bold; margin-top:4px;">
+                            <span style="color:green;" id="dash-total-fact">Ф: 0</span> / 
+                            <span style="color:purple;" id="dash-total-prog">Пр: 0</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div style="font-size:11px; color:#666;">Общий План недели</div>
+                        <div style="font-size:16px; font-weight:bold; color:#333; margin-top:4px;" id="dash-total-plan">0</div>
                     </div>
                 </div>
-                <div id="tp-list-container" class="scroll-box" style="max-height: 35vh;"></div>
+
+                <div id="tp-list-container"></div>
             </div>
         </div>
 
@@ -219,27 +130,18 @@
             "8502": { role: "user", tp: "ВСП 8586/02", title: "Руководитель ВСП 8586/02" },
             "8503": { role: "user", tp: "ВСП 8586/03", title: "Руководитель ВСП 8586/03" },
             "8504": { role: "user", tp: "ВСП 8586/04", title: "Руководитель ВСП 8586/04" },
-            "8505": { role: "user", tp: "ВСП 8586/05", title: "Руководитель ВСП 8586/05" },
-            "8506": { role: "user", tp: "ВСП 8586/06", title: "Руководитель ВСП 8586/06" },
-            "8507": { role: "user", tp: "ВСП 8586/07", title: "Руководитель ВСП 8586/07" },
-            "8509": { role: "user", tp: "ВСП 8586/09", title: "Руководитель ВСП 8586/09" },
-            "8510": { role: "user", tp: "ВСП 8586/10", title: "Руководитель ВСП 8586/10" },
-            "8512": { role: "user", tp: "ВСП 8586/12", title: "Руководитель ВСП 8586/12" },
-            "8513": { role: "user", tp: "ВСП 8586/13", title: "Руководитель ВСП 8586/13" },
-            "8514": { role: "user", tp: "ВСП 8586/14", title: "Руководитель ВСП 8586/14" },
-            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор Иркутского ГОСБ 8586" }
+            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор ГОСБ" }
         };
 
         const ALL_VSPS = Object.values(USERS_DB).filter(u => u.role === "user").map(u => u.tp).sort();
         
-        // ======= СЮДА ВСТАВЬТЕ ВАШ УРЛ ПОСЛЕ ПЕРЕДЕПЛОЯ =======
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyVrePWh2hQvVnO5C8x8b_D0o-p5W2x-X5rS4M/exec"; 
+        // ======= ЗАМЕНИТЕ ЭТОТ URL НА СВОЙ ПОСЛЕ ПЕРЕРАЗВЕРТЫВАНИЯ B Google Scripts! =======
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/ВАШ_НОВЫЙ_ID/exec"; 
 
         let currentUser = null;
         let serverWeeklyPlans = {};
         let serverReports = [];
-        let selectedVsps = [...ALL_VSPS];
-        let currentMetric = 'kred_issued';
+        let currentMetric = 'kred';
 
         window.addEventListener("DOMContentLoaded", () => {
             const savedPin = localStorage.getItem("vsp_session_pin");
@@ -264,7 +166,6 @@
         function logout() {
             localStorage.removeItem("vsp_session_pin");
             currentUser = null;
-            document.getElementById("pin-code").value = "";
             document.getElementById("main-screen").style.display = "none";
             document.getElementById("auth-screen").style.display = "block";
         }
@@ -278,6 +179,7 @@
             document.getElementById("auth-screen").style.display = "none";
             document.getElementById("main-screen").style.display = "block";
             document.getElementById("user-title").innerText = currentUser.title;
+            document.getElementById("user-vsp").innerText = currentUser.tp;
             
             if(currentUser.role === 'admin') {
                 document.getElementById("nav-morning").style.display = "none";
@@ -293,29 +195,14 @@
             reloadData();
         }
 
-        // ПОЛУЧЕНИЕ ДАННЫХ ИЗ ТАБЛИЦЫ ЧЕРЕЗ JSONP
         function reloadData() {
-            const script = document.createElement('script');
-            script.src = `${GOOGLE_SCRIPT_URL}?action=getDashboardAndPlans&callback=jsonpCallback&_=${new Date().getTime()}`;
-            document.body.appendChild(script);
-            document.body.removeChild(script);
-        }
-
-        window.jsonpCallback = function(json) {
-            if(json && json.plans) serverWeeklyPlans = json.plans;
-            if(json.reports) serverReports = json.reports;
-            renderPlansBadge();
-            calculateDashboard();
-        };
-
-        function renderPlansBadge() {
-            const badge = document.getElementById("morning-plans-badge");
-            if(currentUser && serverWeeklyPlans[currentUser.tp]) {
-                let p = serverWeeklyPlans[currentUser.tp];
-                badge.innerHTML = `<strong>Планы недели у вас:</strong> Встречи: ${p.vst_all||0} шт | ЦКП КРЕД: ${p.ckp_kred||0} шт | Доверие: ${p.ud_all||0} шт | НКК: ${p.nkk_all||0} шт`;
-            } else {
-                badge.innerText = "Лимиты синхронизированы с Google-таблицей.";
-            }
+            fetch(`${GOOGLE_SCRIPT_URL}?action=getDashboardAndPlans`)
+            .then(res => res.json())
+            .then(json => {
+                if(json.plans) serverWeeklyPlans = json.plans;
+                if(json.reports) serverReports = json.reports;
+                calculateDashboard();
+            }).catch(err => console.log("Синхронизация...", err));
         }
 
         function switchTab(id) {
@@ -326,25 +213,14 @@
             if(id === 'dashboard') calculateDashboard();
         }
 
-        function updateDashboardMetric() {
-            currentMetric = document.getElementById("dash-metric-selector").value;
-            calculateDashboard();
-        }
-
-        function toggleSelectAll(btn) {
-            if(selectedVsps.length > 0) { selectedVsps = []; btn.innerText = "Выбрать все"; }
-            else { selectedVsps = [...ALL_VSPS]; btn.innerText = "Снять выделение"; }
-            calculateDashboard();
-        }
-
-        function toggleVspCheckbox(tp) {
-            if(selectedVsps.includes(tp)) selectedVsps = selectedVsps.filter(x => x !== tp);
-            else selectedVsps.push(tp);
+        function changeMetric(metric) {
+            currentMetric = metric;
+            document.querySelectorAll(".metric-tab").forEach(b => b.classList.remove("active"));
+            document.getElementById("btn-m-" + metric).classList.add("active");
             calculateDashboard();
         }
 
         function calculateDashboard() {
-            document.getElementById("selected-count-label").innerText = `Выбрано: ${selectedVsps.length} из ${ALL_VSPS.length}`;
             let totalFact = 0, totalProg = 0, totalPlan = 0;
             let listHtml = "";
 
@@ -359,116 +235,57 @@
                     }
                 });
 
-                let isChecked = selectedVsps.includes(tp);
-                if (isChecked) {
-                    totalFact += factVal; totalProg += progVal; totalPlan += planVal;
-                }
-
+                totalFact += factVal; totalProg += progVal; totalPlan += planVal;
                 let pct = planVal > 0 ? Math.round((factVal / planVal) * 100) : 0;
-                let isVol = currentMetric.includes('kred') || currentMetric.includes('nkd');
-                let unit = isVol ? 'т.р.' : 'шт';
+                let unit = currentMetric === 'kred' ? 'тыс.руб' : 'шт';
 
                 listHtml += `<div class="tp-row">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVspCheckbox('${tp}')">
-                        <div>
-                            <strong>${tp}</strong><br>
-                            <span style="font-size:11px; color:#666;">Нед. План: ${planVal} ${unit} | Факт: ${factVal}</span><br>
-                            <span style="font-size:11px; color:#1565c0;">Сегодня: Ф: ${factVal} / Пр: ${progVal}</span>
-                        </div>
+                    <div>
+                        <strong>${tp}</strong><br>
+                        <span style="font-size:12px; color:#666;">Неделя: план ${planVal} ${unit}</span><br>
+                        <span style="font-size:12px; color:#00796b;">Сегодня: Ф: ${factVal} / Пр: ${progVal}</span>
                     </div>
-                    <span style="color:green; font-weight:bold; font-size:13px;">${pct}%</span>
+                    <span style="color:#388e3c; font-weight:bold; font-size:15px;">${pct}%</span>
                 </div>`;
             });
 
             document.getElementById("tp-list-container").innerHTML = listHtml;
-            document.getElementById("dash-total-fact").innerText = "ФАКТ: " + totalFact;
-            document.getElementById("dash-total-prog").innerText = "ПРОГНОЗ: " + totalProg;
-            document.getElementById("dash-total-plan").innerText = totalPlan;
+            document.getElementById("dash-total-fact").innerText = "Ф: " + totalFact;
+            document.getElementById("dash-total-prog").innerText = "Пр: " + totalProg;
+            document.getElementById("dash-total-plan").innerText = totalPlan + (currentMetric === 'kred' ? ' тыс руб' : ' шт');
         }
 
-        // ЖЕЛЕЗОБЕТОННАЯ ОТПРАВКА ДАННЫХ ЧЕРЕЗ СКРИПТ-ТЕГ (ОБХОД CORS)
-        function executeGetSubmission(urlParams, successMessage) {
-            const script = document.createElement('script');
-            script.src = `${GOOGLE_SCRIPT_URL}?${urlParams}&_=${new Date().getTime()}`;
-            document.body.appendChild(script);
-            document.body.removeChild(script);
+        function sendData(type) {
+            let prefix = type === 'Утро' ? 'm-' : 'e-';
+            let kred = document.getElementById(prefix + "kred").value || 0;
+            let chkd = document.getElementById(prefix + "chkd").value || 0;
+            let doverie = document.getElementById(prefix + "doverie").value || 0;
+            let nkk = document.getElementById(prefix + "nkk").value || 0;
+
+            let url = `${GOOGLE_SCRIPT_URL}?action=saveReport&vsp_number=${encodeURIComponent(currentUser.tp)}&report_type=${type}&kred=${kred}&chkd=${chkd}&doverie=${doverie}&nkk=${nkk}`;
             
-            showToast(successMessage);
-            setTimeout(reloadData, 1500);
-        }
-
-        function sendMorning() {
-            let params = `action=saveReport&vsp_number=${encodeURIComponent(currentUser.tp)}&report_type=Утро` +
-                         `&vst_all=${document.getElementById("m-vst_all").value || 0}` +
-                         `&ckp_kred=${document.getElementById("m-ckp_kred").value || 0}` +
-                         `&ud_all=${document.getElementById("m-ud_all").value || 0}` +
-                         `&nkk_all=${document.getElementById("m-nkk_all").value || 0}`;
-            
-            executeGetSubmission(params, "Утренний прогноз отправлен!");
-        }
-
-        function sendEvening() {
-            let params = `action=saveReport&vsp_number=${encodeURIComponent(currentUser.tp)}&report_type=Вечер` +
-                `&vst_all=${document.getElementById("e-vst_all").value || 0}` +
-                `&vst_ab=${document.getElementById("e-vst_ab").value || 0}` +
-                `&ud_all=${document.getElementById("e-ud_all").value || 0}` +
-                `&ud_purb=${document.getElementById("e-ud_purb").value || 0}` +
-                `&ckp_bk=${document.getElementById("e-ckp_bk").value || 0}` +
-                `&ckp_ekv=${document.getElementById("e-ckp_ekv").value || 0}` +
-                `&ckp_kp=${document.getElementById("e-ckp_kp").value || 0}` +
-                `&ckp_bg=${document.getElementById("e-ckp_bg").value || 0}` +
-                `&ckp_kred=${document.getElementById("e-ckp_kred").value || 0}` +
-                `&kred_created=${document.getElementById("e-kred_created").value || 0}` +
-                `&kred_issued=${document.getElementById("e-kred_issued").value || 0}` +
-                `&nkk_all=${document.getElementById("e-nkk_all").value || 0}` +
-                `&nkd_blago=${document.getElementById("e-nkd_blago").value || 0}` +
-                `&nkd_akkred=${document.getElementById("e-nkd_akkred").value || 0}` +
-                `&nkd_eco=${document.getElementById("e-nkd_eco").value || 0}` +
-                `&nkd_bg=${document.getElementById("e-nkd_bg").value || 0}` +
-                `&nkd_other=${document.getElementById("e-nkd_other").value || 0}` +
-                `&lead_leasing=${document.getElementById("e-lead_leasing").value || 0}` +
-                `&lead_ved=${document.getElementById("e-lead_ved").value || 0}` +
-                `&sberfest=${document.getElementById("e-sberfest").value || 0}` +
-                `&mkk_kred=${document.getElementById("e-mkk_kred").value || 0}` +
-                `&mkk_zp=${document.getElementById("e-mkk_zp").value || 0}` +
-                `&mkk_ekv=${document.getElementById("e-mkk_ekv").value || 0}` +
-                `&mkk_bg=${document.getElementById("e-mkk_bg").value || 0}` +
-                `&mkk_bk=${document.getElementById("e-mkk_bk").value || 0}`;
-
-            executeGetSubmission(params, "Вечерние итоги зафиксированы!");
-            document.querySelectorAll("#tab-evening input").forEach(i => i.value = "");
+            fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                showToast(`${type} отчёт успешно отправлен!`);
+                document.querySelectorAll(`.container input`).forEach(i => i.value = "");
+                setTimeout(reloadData, 1000);
+            });
         }
 
         function sendWeeklyPlan() {
-            let params = `action=savePlans&vsp_number=${encodeURIComponent(document.getElementById("adm-tp-select").value)}` +
-                `&p_vst_all=${document.getElementById("p-vst_all").value || 0}` +
-                `&p_vst_ab=${document.getElementById("p-vst_ab").value || 0}` +
-                `&p_ud_all=${document.getElementById("p-ud_all").value || 0}` +
-                `&p_ud_purb=${document.getElementById("p-ud_purb").value || 0}` +
-                `&p_ckp_bk=${document.getElementById("p-ckp_bk").value || 0}` +
-                `&p_ckp_ekv=${document.getElementById("p-ckp_ekv").value || 0}` +
-                `&p_ckp_kp=${document.getElementById("p-ckp_kp").value || 0}` +
-                `&p_ckp_bg=${document.getElementById("p-ckp_bg").value || 0}` +
-                `&p_ckp_kred=${document.getElementById("p-ckp_kred").value || 0}` +
-                `&p_kred_created=${document.getElementById("p-kred_created").value || 0}` +
-                `&p_kred_issued=${document.getElementById("p-kred_issued").value || 0}` +
-                `&p_nkk_all=${document.getElementById("p-nkk_all").value || 0}` +
-                `&p_nkd_blago=${document.getElementById("p-nkd_blago").value || 0}` +
-                `&p_nkd_akkred=${document.getElementById("p-nkd_akkred").value || 0}` +
-                `&p_nkd_eco=${document.getElementById("p-nkd_eco").value || 0}` +
-                `&p_nkd_bg=${document.getElementById("p-nkd_bg").value || 0}` +
-                `&p_nkd_other=${document.getElementById("p-nkd_other").value || 0}` +
-                `&p_lead_leasing=${document.getElementById("p-lead_leasing").value || 0}` +
-                `&p_lead_ved=${document.getElementById("p-lead_ved").value || 0}` +
-                `&p_sberfest=${document.getElementById("p-sberfest").value || 0}` +
-                `&p_mkk_kred=${document.getElementById("p-mkk_kred").value || 0}` +
-                `&p_mkk_zp=${document.getElementById("p-mkk_zp").value || 0}` +
-                `&p_mkk_ekv=${document.getElementById("p-mkk_ekv").value || 0}` +
-                `&p_mkk_bg=${document.getElementById("p-mkk_bg").value || 0}` +
-                `&p_mkk_bk=${document.getElementById("p-mkk_bk").value || 0}`;
+            let tp = document.getElementById("adm-tp-select").value;
+            let kred = document.getElementById("p-kred").value || 0;
+            let chkd = document.getElementById("p-chkd").value || 0;
+            let doverie = document.getElementById("p-doverie").value || 0;
+            let nkk = document.getElementById("p-nkk").value || 0;
 
-            executeGetSubmission(params, "Все планы успешно утверждены!");
+            let url = `${GOOGLE_SCRIPT_URL}?action=savePlans&vsp_number=${encodeURIComponent(tp)}&p_kred=${kred}&p_chkd=${chkd}&p_doverie=${doverie}&p_nkk=${nkk}`;
+            
+            fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                showToast("Планы успешно обновлены!");
+                setTimeout(reloadData, 1000);
+            });
         }
     </script>
 </body>
