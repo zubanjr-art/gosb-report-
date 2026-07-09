@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Малый бизнес Иркутного отделения</title>
+    <title>Малый бизнес Иркутского отделения</title>
     <style>
         :root { --primary: #00796b; --primary-light: #e0f2f1; --bg: #f4f6f8; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -49,11 +49,21 @@
 
         <div class="container" id="tab-morning">
             <div class="card">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">☀️ Утренний прогноз по ключевым ЦКП</div>
-                <div class="form-group"><label>Прогноз Встреч всего (шт):</label><input type="number" id="m-vst_all" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз КРЕД ЦКП (шт):</label><input type="number" id="m-ckp_kred" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз Уровень Доверия (шт):</label><input type="number" id="m-ud_all" class="form-control" placeholder="0"></div>
-                <div class="form-group"><label>Прогноз НКК (шт):</label><input type="number" id="m-nkk_all" class="form-control" placeholder="0"></div>
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">☀️ Утренний прогноз по ключевым показателям</div>
+                <div class="scroll-box">
+                    <div class="block-title">Активность и ЦКП</div>
+                    <div class="form-group"><label>Прогноз Встреч всего (шт):</label><input type="number" id="m-vst_all" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз КРЕД ЦКП (шт):</label><input type="number" id="m-ckp_kred" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз Уровень Доверия (шт):</label><input type="number" id="m-ud_all" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз НКК (в штуках):</label><input type="number" id="m-nkk_all" class="form-control" placeholder="0"></div>
+                    
+                    <div class="block-title">Объемы и НКД</div>
+                    <div class="form-group"><label>Прогноз Кредиты выдано (тыс. руб):</label><input type="number" id="m-kred_issued" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз Благо (тыс. руб):</label><input type="number" id="m-nkd_blago" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз ЭКО (тыс. руб):</label><input type="number" id="m-nkd_eco" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз Аккредитивы (тыс. руб):</label><input type="number" id="m-nkd_akkred" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Прогноз ПРОЧИЕ НКД (тыс. руб):</label><input type="number" id="m-nkd_other" class="form-control" placeholder="0"></div>
+                </div>
                 <button class="btn-submit" onclick="sendMorning()">Сохранить прогноз</button>
             </div>
         </div>
@@ -151,7 +161,7 @@
                     <div class="form-group"><label>МКК БГ:</label><input type="number" id="p-mkk_bg" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>МКК БК:</label><input type="number" id="p-mkk_bk" class="form-control" placeholder="0"></div>
                 </div>
-                <button class="btn-submit" style="background: #ef6c00;" onclick="sendWeeklyPlan()">Утвердить все показатели</button>
+                <button class="btn-submit" style="background: #ef6c00;" onclick="sendWeeklyPlan()">Утвердить все планы</button>
             </div>
         </div>
 
@@ -224,13 +234,13 @@
             "8512": { role: "user", tp: "ВСП 8586/12", title: "Руководитель ВСП 8586/12" },
             "8513": { role: "user", tp: "ВСП 8586/13", title: "Руководитель ВСП 8586/13" },
             "8514": { role: "user", tp: "ВСП 8586/14", title: "Руководитель ВСП 8586/14" },
-            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор Иркутского ГОСБ 8586" }
+            "1234": { role: "admin", tp: "ГОСБ", title: "Администратор Иркутного ГОСБ 8586" }
         };
 
         const ALL_VSPS = Object.values(USERS_DB).filter(u => u.role === "user").map(u => u.tp).sort();
         
-        // ======= СЮДА ВСТАВЬТЕ ВАШ УРЛ ИЗ GOOGLE SCRIPTS =======
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeU8CL5k_8xvAPV2IY0NJgHiSGABcHrop9QYNIZTnFSy5OgJ3q35kOH57uLBGjohkntQ/exec"; 
+        // ======= ТУТ ТАКЖЕ НЕ ЗАБУДЬТЕ СВОЙ URL ПОСЛЕ «НОВОГО РАЗВЕРТЫВАНИЯ»! =======
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywKKauCFtqrIviX3figd-A1E27bQrcY3rQLhjhHeGLLq8QtLrvWAnUB1KEfsU6oz7t8w/exec"; 
 
         let currentUser = null;
         let serverWeeklyPlans = {};
@@ -339,9 +349,9 @@
                 let factVal = 0, progVal = 0;
 
                 serverReports.forEach(r => {
-                    if (r.tp === tp && r.isToday) {
-                        if (r.type === "Вечер") factVal += r[currentMetric] || 0;
-                        if (r.type === "Утро") progVal += r[currentMetric] || 0;
+                    if (r.tp === tp) {
+                        if (r.type === "Вечер") factVal = r[currentMetric] || 0;
+                        if (r.type === "Утро") progVal = r[currentMetric] || 0;
                     }
                 });
 
@@ -359,7 +369,7 @@
                         <input type="checkbox" style="transform: scale(1.2); cursor:pointer;" ${isChecked ? 'checked' : ''} onchange="toggleVspCheckbox('${tp}')">
                         <div style="cursor:pointer;" onclick="toggleVspCheckbox('${tp}')">
                             <strong>${tp}</strong><br>
-                            <span style="font-size:11px; color:#666;">План: ${planVal} ${unit} | Факт: ${factVal}</span><br>
+                            <span style="font-size:11px; color:#666;">План: ${planVal} ${unit}</span><br>
                             <span style="font-size:11px; color:#1565c0;">Сегодня: Ф: ${factVal} / Пр: ${progVal}</span>
                         </div>
                     </div>
@@ -378,7 +388,12 @@
                          `&vst_all=${document.getElementById("m-vst_all").value || 0}` +
                          `&ckp_kred=${document.getElementById("m-ckp_kred").value || 0}` +
                          `&ud_all=${document.getElementById("m-ud_all").value || 0}` +
-                         `&nkk_all=${document.getElementById("m-nkk_all").value || 0}`;
+                         `&nkk_all=${document.getElementById("m-nkk_all").value || 0}` +
+                         `&kred_issued=${document.getElementById("m-kred_issued").value || 0}` +
+                         `&nkd_blago=${document.getElementById("m-nkd_blago").value || 0}` +
+                         `&nkd_eco=${document.getElementById("m-nkd_eco").value || 0}` +
+                         `&nkd_akkred=${document.getElementById("m-nkd_akkred").value || 0}` +
+                         `&nkd_other=${document.getElementById("m-nkd_other").value || 0}`;
             
             fetch(`${GOOGLE_SCRIPT_URL}?${params}`).then(() => {
                 showToast("Утренний прогноз отправлен!");
