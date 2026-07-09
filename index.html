@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Малый бизнес Иркутного отделения</title>
+    <title>Малый бизнес Иркутского отделения</title>
     <style>
         :root { --primary: #00796b; --primary-light: #e0f2f1; --bg: #f4f6f8; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -37,7 +37,7 @@
     <div id="toast" class="toast"></div>
 
     <div id="auth-screen" class="auth-container">
-        <h2 style="color: #2e7d32; margin-bottom: 8px; font-size: 20px;">Малый бизнес Иркутского отделения</h2>
+        <h2 style="color: #2e7d32; margin-bottom: 8px; font-size: 20px;">Малый бизнес Иркутного отделения</h2>
         <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Введите PIN-код вашей точки продаж</p>
         <input type="password" id="pin-code" class="pin-input" inputmode="numeric" placeholder="••••" maxlength="4">
         <button class="btn-submit" onclick="login()">Войти в систему</button>
@@ -106,7 +106,7 @@
                     <div class="form-group"><label>10. Сберфест (регистраций):</label><input type="number" id="e-sberfest" class="form-control" placeholder="0"></div>
 
                     <div class="block-title">11. МКК разнулившихся</div>
-                    <div class="form-group"><label>Кредиты:</label><input type="number" id="mkk_kred" class="form-control" placeholder="0"></div>
+                    <div class="form-group"><label>Кредиты:</label><input type="number" id="e-mkk_kred" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>ЗП:</label><input type="number" id="e-mkk_zp" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>Экв:</label><input type="number" id="e-mkk_ekv" class="form-control" placeholder="0"></div>
                     <div class="form-group"><label>БГ:</label><input type="number" id="e-mkk_bg" class="form-control" placeholder="0"></div>
@@ -386,33 +386,12 @@
             document.getElementById("dash-total-plan").innerText = totalPlan;
         }
 
-        // ФУНКЦИЯ ЭКСПОРТА В EXCEL ДЛЯ РУКОВОДСТВА
+        // БЕЗОТКАЗНЫЙ ЭКСПОРТ В EXCEL БЕЗ АВТОРИЗАЦИИ ГУГЛ
         function exportToExcel() {
             showToast("Формирование файла Excel...");
-            
-            // Запрашиваем структуру таблицы напрямую через макрос
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(() => {
-                    // Используем универсальный экспорт от Google Drive
-                    // Ссылка под капотом трансформируется в триггер скачивания .xlsx файла
-                    const fileId = GOOGLE_SCRIPT_URL.split("/s/")[1].split("/")[0];
-                    const downloadUrl = `https://docs.google.com/spreadsheets/d/` +
-                                        `1e-M0-w086G-j6Yj5q5Lp3A_B60hX9mBw9zN5wVv5yY8` + // Заглушка, подменяется на лету скриптом ниже
-                                        `/export?format=xlsx`;
-                    
-                    // Чтобы пользователю не нужно было вручную вставлять ID таблицы,
-                    // мы просто перенаправим его на открытый интерфейс веб-приложения макроса,
-                    // но красивее открыть саму связанную таблицу в режиме экспорта.
-                    // Для гарантированного результата мы просто откроем вашу Google Таблицу в новой вкладке, 
-                    // откуда руководство сможет сразу скачать её одной кнопкой или смотреть онлайн.
-                    
-                    // Самый надежный способ для Apps Script — дать прямую ссылку на скачивание. 
-                    // Так как скрипт привязан к таблице, мы можем открыть саму таблицу:
-                    window.open(GOOGLE_SCRIPT_URL.replace("/exec", "/edit"), "_blank");
-                })
-                .catch(() => {
-                    showToast("Не удалось скачать напрямую. Открываем таблицу...");
-                });
+            const SPREADSHEET_ID = "1-MarjxhddkVWskJK77xbDSQT5bzv3pIxhugqEXTYurQ";
+            const downloadUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=xlsx`;
+            window.location.href = downloadUrl;
         }
 
         function sendMorning() {
